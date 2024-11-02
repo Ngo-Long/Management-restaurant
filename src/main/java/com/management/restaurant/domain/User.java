@@ -23,7 +23,7 @@ import com.management.restaurant.domain.enumeration.GenderEnum;
 
 @Table(name = "users")
 @Entity
-public class User {
+public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -43,7 +43,7 @@ public class User {
     private String phone;
     private String avatar;
     private String address;
-    private Instant dayOfBirth;
+    // private Instant dayOfBirth;
     private boolean active;
 
     @Enumerated(EnumType.STRING)
@@ -108,13 +108,13 @@ public class User {
         this.address = address;
     }
 
-    public int getDayOfBirth() {
-        return dayOfBirth;
-    }
+    // public int getDayOfBirth() {
+    // return dayOfBirth;
+    // }
 
-    public void setDayOfBirth(int dayOfBirth) {
-        this.dayOfBirth = dayOfBirth;
-    }
+    // public void setDayOfBirth(int dayOfBirth) {
+    // this.dayOfBirth = dayOfBirth;
+    // }
 
     public GenderEnum getGender() {
         return gender;
