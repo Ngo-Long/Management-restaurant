@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.io.Serializable;
 import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -29,7 +30,9 @@ import jakarta.validation.constraints.NotBlank;
 @Entity
 @Getter
 @Setter
-public class Role {
+public class Role implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 	
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
