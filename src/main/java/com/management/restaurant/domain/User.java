@@ -1,5 +1,8 @@
 package com.management.restaurant.domain;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Column;
@@ -20,8 +23,11 @@ import java.io.Serializable;
 import jakarta.validation.constraints.NotBlank;
 
 import com.management.restaurant.domain.enumeration.GenderEnum;
+import com.management.restaurant.util.SecurityUtil;
 
 @Table(name = "users")
+@Getter
+@Setter
 @Entity
 public class User implements Serializable {
 
@@ -41,103 +47,46 @@ public class User implements Serializable {
     private String password;
 
     private String phone;
-    private String avatar;
-    private String address;
-    // private Instant dayOfBirth;
-    private boolean active;
-
+    
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
+    
+    private String avatar;
+    private String address; 
+    private boolean active = true;
 
     @Column(columnDefinition = "MEDIUMTEXT")
     private String refreshToken;
+    
+    @ManyToOne
+    @JoinColumn(name = "restaurant_id")
+    private Restaurant restaurant;
+    
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private Role role;
 
-    public Long getId() {
-        return id;
+    private Instant createdAt;
+    private Instant updatedAt;
+    private String createdBy;
+    private String updatedBy;
+    
+    @PrePersist
+    public void handleBeforeCreate() {
+        this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
+                ? SecurityUtil.getCurrentUserLogin().get()
+                : "";
+
+        this.createdAt = Instant.now();
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @PreUpdate
+    public void handleBeforeUpdate() {
+        this.updatedBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
+                ? SecurityUtil.getCurrentUserLogin().get()
+                : "";
 
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    // public int getDayOfBirth() {
-    // return dayOfBirth;
-    // }
-
-    // public void setDayOfBirth(int dayOfBirth) {
-    // this.dayOfBirth = dayOfBirth;
-    // }
-
-    public GenderEnum getGender() {
-        return gender;
-    }
-
-    public void setGender(GenderEnum gender) {
-        this.gender = gender;
-    }
-
-    public String getRefreshToken() {
-        return refreshToken;
-    }
-
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
+        this.updatedAt = Instant.now();
     }
 
 }
