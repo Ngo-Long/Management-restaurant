@@ -69,6 +69,24 @@ public class UserService {
 
         return null;
     }
+
+    public User fetchUserByUsername(String username) {
+        return this.userRepository.findByEmail(username);
+    }
+
+    public void updateUserToken(String email, String token) {
+        User currentUser = this.fetchUserByUsername(email);
+        if (currentUser == null) {
+            return;
+        }
+
+        currentUser.setRefreshToken(token);
+        this.userRepository.save(currentUser);
+    }
+
+    public User getUserByRefreshTokenAndEmail(String token, String email) {
+        return this.userRepository.findByRefreshTokenAndEmail(token, email);
+    }
     
     public ResCreateUserDTO convertToResCreateUserDTO(User user) {
         ResCreateUserDTO res = new ResCreateUserDTO();
