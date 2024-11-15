@@ -19,5 +19,5 @@ public class ResCreateUserDTO {
 	private String avatar;
 	private String address;
 	private boolean active;
-    private Instant createdAt;
+    private Instant createdDate;
 }

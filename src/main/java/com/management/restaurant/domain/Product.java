@@ -25,13 +25,13 @@ import com.management.restaurant.util.SecurityUtil;
 @Entity
 @Getter
 @Setter
-public class Product implements Serializable {
+public class Product extends AbstractAuditingEntity<Long> implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	private Long id;
 	
 	@NotNull
 	@Size(message = "Tên sản phẩm không được để trống")
@@ -54,27 +54,4 @@ public class Product implements Serializable {
 	private String detailDesc;	
 	
 	private boolean active;
-	
-    private Instant createdAt;
-    private Instant updatedAt;
-    private String createdBy;
-    private String updatedBy;
-
-    @PrePersist
-    public void handleBeforeCreate() {
-        this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
-                ? SecurityUtil.getCurrentUserLogin().get()
-                : "";
-
-        this.createdAt = Instant.now();
-    }
-
-    @PreUpdate
-    public void handleBeforeUpdate() {
-        this.updatedBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
-                ? SecurityUtil.getCurrentUserLogin().get()
-                : "";
-
-        this.updatedAt = Instant.now();
-    }
 }

@@ -1,7 +1,5 @@
 package com.management.restaurant.domain.response.users;
 
-
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -28,6 +26,6 @@ public class ResUserDTO {
 	private String address;
 	private boolean active;
     private GenderEnum gender;
-    private Instant updatedAt;
-    private Instant createdAt;
+    private Instant createdDate;
+    private Instant lastModifiedDate;    
 }

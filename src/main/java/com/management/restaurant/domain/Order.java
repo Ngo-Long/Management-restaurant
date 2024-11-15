@@ -17,6 +17,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -31,13 +32,13 @@ import com.management.restaurant.domain.enumeration.OrderStatusEnum;
 @Entity
 @Getter
 @Setter
-public class Order implements Serializable {
+public class Order extends AbstractAuditingEntity<Long> implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 	
 	private String note;
 	private double totalPrice;
@@ -56,26 +57,7 @@ public class Order implements Serializable {
     @JoinColumn(name = "dining_table_id")
     private DiningTable dining_table;
     
-    private Instant createdAt;
-    private Instant updatedAt;
-    private String createdBy;
-    private String updatedBy;
-
-    @PrePersist
-    public void handleBeforeCreate() {
-        this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
-                ? SecurityUtil.getCurrentUserLogin().get()
-                : "";
-
-        this.createdAt = Instant.now();
-    }
-
-    @PreUpdate
-    public void handleBeforeUpdate() {
-        this.updatedBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
-                ? SecurityUtil.getCurrentUserLogin().get()
-                : "";
-
-        this.updatedAt = Instant.now();
-    }
+    @OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Invoice invoice; 
 }

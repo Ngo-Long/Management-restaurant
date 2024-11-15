@@ -81,7 +81,7 @@ public class UserService {
         res.setAvatar(user.getAvatar());
         res.setAddress(user.getAddress());
         res.setActive(user.isActive());
-        res.setCreatedAt(user.getCreatedAt());
+        res.setCreatedDate(user.getCreatedDate());
        
         return res;
     }
@@ -97,7 +97,7 @@ public class UserService {
         res.setAvatar(user.getAvatar());        
         res.setAddress(user.getAddress());
         res.setActive(user.isActive());
-        res.setUpdatedAt(user.getUpdatedAt());
+        res.setLastModifiedDate(user.getLastModifiedDate());
        
         return res;
     }
@@ -111,9 +111,9 @@ public class UserService {
         res.setGender(user.getGender());
         res.setAvatar(user.getAvatar());
         res.setAddress(user.getAddress());
-        res.setActive(user.isActive());
-        res.setCreatedAt(user.getCreatedAt());
-        res.setUpdatedAt(user.getUpdatedAt());        
+        res.setActive(user.isActive());        
+        res.setCreatedDate(user.getCreatedDate());
+        res.setLastModifiedDate(user.getLastModifiedDate());        
 
         return res;
     }

@@ -27,13 +27,13 @@ import com.management.restaurant.util.SecurityUtil;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Permission implements Serializable {
+public class Permission extends AbstractAuditingEntity<Long> implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @NotBlank(message = "Tên không được để trống!")
     private String name;
@@ -47,11 +47,6 @@ public class Permission implements Serializable {
     @NotBlank(message = "Module không được để trống!")
     private String module;
 
-    private Instant createdAt;
-    private Instant updatedAt;
-    private String createdBy;
-    private String updatedBy;
-
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "permissions")
     @JsonIgnore
     private List<Role> roles;
@@ -61,23 +56,5 @@ public class Permission implements Serializable {
         this.apiPath = apiPath;
         this.method = method;
         this.module = module;
-    }
-
-    @PrePersist
-    public void handleBeforeCreate() {
-        this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
-                ? SecurityUtil.getCurrentUserLogin().get()
-                : "";
-
-        this.createdAt = Instant.now();
-    }
-
-    @PreUpdate
-    public void handleBeforeUpdate() {
-        this.updatedBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
-                ? SecurityUtil.getCurrentUserLogin().get()
-                : "";
-
-        this.updatedAt = Instant.now();
     }
 }

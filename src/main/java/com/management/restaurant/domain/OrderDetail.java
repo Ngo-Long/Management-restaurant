@@ -25,13 +25,13 @@ import com.management.restaurant.domain.enumeration.OrderDetailStatusEnum;
 @Entity
 @Getter
 @Setter
-public class OrderDetail implements Serializable {
+public class OrderDetail extends AbstractAuditingEntity<Long> implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     private long quantity;
     private double price;
@@ -46,27 +46,4 @@ public class OrderDetail implements Serializable {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
-    
-    private Instant createdAt;
-    private Instant updatedAt;
-    private String createdBy;
-    private String updatedBy;
-
-    @PrePersist
-    public void handleBeforeCreate() {
-        this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
-                ? SecurityUtil.getCurrentUserLogin().get()
-                : "";
-
-        this.createdAt = Instant.now();
-    }
-
-    @PreUpdate
-    public void handleBeforeUpdate() {
-        this.updatedBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
-                ? SecurityUtil.getCurrentUserLogin().get()
-                : "";
-
-        this.updatedAt = Instant.now();
-    }
 }
