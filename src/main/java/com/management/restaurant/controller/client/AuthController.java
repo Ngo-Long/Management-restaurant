@@ -100,7 +100,7 @@ public class AuthController {
         Authentication authentication = authenticationManagerBuilder.getObject()
                 .authenticate(authenticationToken);
 
-        // set thông tin người dùng đăng nhập vào context (có thể sử dụng sau này)
+        // set thông tin người dùng đăng nhập vào context
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // get data user login
