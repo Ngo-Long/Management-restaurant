@@ -12,12 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -62,12 +62,12 @@ public class UserController {
      * mail with an activation link.
      * The user needs to be activated on creation.
      *
-     * @param userDTO the user to create.
+     * @param dataUser the user to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with
      *         body the new user, or with status {@code 400 (Bad Request)} if the
      *         login or email is already in use.
-     * @throws URISyntaxException       if the Location URI syntax is incorrect.
-     * @throws BadRequestAlertException {@code 400 (Bad Request)} if the login or
+     * @throws IdInvalidException       if the Location URI syntax is incorrect.
+     * @throws IdInvalidException       {@code 400 (Bad Request)} if the login or
      *                                  email is already in use.
      */
     @PostMapping("/admin/users")
@@ -83,7 +83,7 @@ public class UserController {
 		String hashPassword = this.passwordEncoder.encode(dataUser.getPassword());
 		dataUser.setPassword(hashPassword);
 		
-		User newUser = this.userService.create(dataUser);		
+		User newUser = this.userService.createUser(dataUser);
 		ResCreateUserDTO res = this.userService.convertToResCreateUserDTO(newUser);
 		
 		return ResponseEntity.status(HttpStatus.CREATED).body(res);    
@@ -92,12 +92,10 @@ public class UserController {
     /**
      * {@code PUT /admin/users} : Updates an existing User.
      *
-     * @param userDTO the user to update.
+     * @param dataUser the user to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
      *         the updated user.
-     * @throws EmailAlreadyUsedException {@code 400 (Bad Request)} if the email is
-     *                                   already in use.
-     * @throws LoginAlreadyUsedException {@code 400 (Bad Request)} if the login is
+     * @throws IdInvalidException {@code 400 (Bad Request)} if the email is not
      *                                   already in use.
      */    
     @PutMapping("/admin/users")
@@ -109,7 +107,7 @@ public class UserController {
         	throw new IdInvalidException("Người dùng không tồn tại!");
         }
     	
-    	User updateUser = this.userService.update(dataUser);
+    	User updateUser = this.userService.updateUser(dataUser);
         return ResponseEntity.ok(this.userService.convertToResUpdateUserDTO(updateUser));
     }
 
@@ -128,14 +126,14 @@ public class UserController {
             throw new IdInvalidException("Người dùng không tồn tại!");
         }
         
-        this.userService.delete(id);
+        this.userService.deleteUser(id);
         return ResponseEntity.ok(null);
     }
     
     /**
      * {@code GET /admin/users/:id} : get the "id" user.
      *
-     * @param fetch user by id
+     * @param id user by id
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
      *         the "id" user, or with status {@code 404 (Not Found)}.
      */
@@ -157,6 +155,7 @@ public class UserController {
      * are only allowed for the administrators.
      *
      * @param pageable the pagination information.
+     * @param spec     the filtering criteria applied to the query
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
      *         all users.
      */
