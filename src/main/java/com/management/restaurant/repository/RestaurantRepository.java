@@ -14,7 +14,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 @Repository
 public interface RestaurantRepository extends JpaRepository<Restaurant, Long>, JpaSpecificationExecutor<Restaurant> {
 
-	boolean existsByName(String name);
+	Boolean existsByName(String name);
 
 	List<Restaurant> findByName(String name);
 }

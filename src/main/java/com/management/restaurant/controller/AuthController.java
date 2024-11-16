@@ -5,7 +5,7 @@ import jakarta.validation.Valid;
 import com.management.restaurant.domain.User;
 import com.management.restaurant.domain.request.ReqLoginDTO;
 import com.management.restaurant.domain.response.ResLoginDTO;
-import com.management.restaurant.domain.response.users.ResCreateUserDTO;
+import com.management.restaurant.domain.response.user.ResCreateUserDTO;
 import com.management.restaurant.service.UserService;
 import com.management.restaurant.util.SecurityUtil;
 import com.management.restaurant.util.annotation.ApiMessage;

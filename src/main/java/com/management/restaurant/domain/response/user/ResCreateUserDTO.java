@@ -1,4 +1,4 @@
-package com.management.restaurant.domain.response.users;
+package com.management.restaurant.domain.response.user;
 
 import lombok.Getter;
 import lombok.Setter;

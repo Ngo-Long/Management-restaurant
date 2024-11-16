@@ -49,7 +49,7 @@ public class RestaurantService {
         return this.restaurantRepository.save(currentRestaurant);
     }
 
-    public void deleteRestaurant(long id) {
+    public void deleteRestaurantById(long id) {
         Optional<Restaurant> restaurantOptional = this.restaurantRepository.findById(id);
         if (restaurantOptional.isPresent()) {
             Restaurant restaurant = restaurantOptional.get();
@@ -70,12 +70,12 @@ public class RestaurantService {
         return this.restaurantRepository.findByName(name);
     }
 
-    public Restaurant fetchRestaurantById(long id) {
+    public Restaurant fetchRestaurantById(Long id) {
         Optional<Restaurant> companyOptional = this.restaurantRepository.findById(id);
         return companyOptional.orElse(null);
     }
 
-    public ResultPaginationDTO handleFetchRestaurants(Specification<Restaurant> spec, Pageable pageable) {
+    public ResultPaginationDTO fetchRestaurants(Specification<Restaurant> spec, Pageable pageable) {
         Page<Restaurant> pageRestaurant = this.restaurantRepository.findAll(spec, pageable);
         ResultPaginationDTO rs = new ResultPaginationDTO();
         ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();

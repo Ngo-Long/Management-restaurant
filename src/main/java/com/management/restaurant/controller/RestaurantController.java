@@ -109,7 +109,7 @@ public class RestaurantController {
             throw new InfoInvalidException("Nhà hàng không tồn tại!");
         }
 
-        this.restaurantService.deleteRestaurant(id);
+        this.restaurantService.deleteRestaurantById(id);
         return ResponseEntity.ok(null);
     }
 
@@ -122,7 +122,7 @@ public class RestaurantController {
      */
     @GetMapping("/restaurants/{id}")
     @ApiMessage("Get restaurant by id")
-    public ResponseEntity<Restaurant> getRestaurantById(@PathVariable("id") long id) throws InfoInvalidException {
+    public ResponseEntity<Restaurant> fetchRestaurantById(@PathVariable("id") long id) throws InfoInvalidException {
     	log.debug("REST request to get Restaurant : {}", id);
     	
         Restaurant dataRestaurant = this.restaurantService.fetchRestaurantById(id);
@@ -142,9 +142,9 @@ public class RestaurantController {
      */
     @GetMapping("/restaurants")
     @ApiMessage("Fetch all restaurants")
-    public ResponseEntity<ResultPaginationDTO> getRestaurants(Pageable pageable, @Filter Specification<Restaurant> spec) {
+    public ResponseEntity<ResultPaginationDTO> fetchRestaurants(Pageable pageable, @Filter Specification<Restaurant> spec) {
     	log.debug("REST request to get all Restaurant");
-        return ResponseEntity.ok(this.restaurantService.handleFetchRestaurants(spec, pageable));
+        return ResponseEntity.ok(this.restaurantService.fetchRestaurants(spec, pageable));
     }
 
 }
