@@ -44,15 +44,13 @@ public class DiningTable extends AbstractAuditingEntity<Long> implements Seriali
     
     private int seats;
 
-    @Enumerated(EnumType.STRING)
-    private TableEnum status;
-
     @Column(columnDefinition = "MEDIUMTEXT")
     private String description;
 
-    private Instant startDate;
-    private Instant endDate;
-    private boolean active;
+    @Enumerated(EnumType.STRING)
+    private TableEnum status;
+
+    private boolean active = true;
     
     @ManyToOne
     @JoinColumn(name = "restaurant_id")
