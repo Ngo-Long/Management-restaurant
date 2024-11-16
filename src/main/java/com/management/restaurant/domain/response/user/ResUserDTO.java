@@ -1,4 +1,4 @@
-package com.management.restaurant.domain.response.users;
+package com.management.restaurant.domain.response.user;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,10 +8,6 @@ import lombok.AllArgsConstructor;
 import java.time.Instant;
 
 import com.management.restaurant.domain.enumeration.GenderEnum;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 
 @Getter
 @Setter

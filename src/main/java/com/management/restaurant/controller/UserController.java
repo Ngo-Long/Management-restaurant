@@ -25,10 +25,10 @@ import com.turkraft.springfilter.boot.Filter;
 import com.management.restaurant.util.error.InfoInvalidException;
 
 import com.management.restaurant.domain.User;
-import com.management.restaurant.domain.response.users.ResUserDTO;
+import com.management.restaurant.domain.response.user.ResUserDTO;
 import com.management.restaurant.domain.response.ResultPaginationDTO;
-import com.management.restaurant.domain.response.users.ResCreateUserDTO;
-import com.management.restaurant.domain.response.users.ResUpdateUserDTO;
+import com.management.restaurant.domain.response.user.ResCreateUserDTO;
+import com.management.restaurant.domain.response.user.ResUpdateUserDTO;
 
 import com.management.restaurant.service.UserService;
 import com.management.restaurant.util.annotation.ApiMessage;
