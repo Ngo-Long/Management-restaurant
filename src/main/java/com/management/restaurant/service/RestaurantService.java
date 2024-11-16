@@ -14,6 +14,9 @@ import com.management.restaurant.domain.response.ResultPaginationDTO;
 import com.management.restaurant.repository.RestaurantRepository;
 import com.management.restaurant.repository.UserRepository;
 
+/**
+ * Service class for managing restaurants.
+ */
 @Service
 public class RestaurantService {
 	
@@ -25,11 +28,11 @@ public class RestaurantService {
 		this.userRepository = userRepository;
 	}
 	
-    public Restaurant handleCreateRestaurant(Restaurant restaurant) {
+    public Restaurant createRestaurant(Restaurant restaurant) {
         return this.restaurantRepository.save(restaurant);
     }
     
-    public Restaurant handleUpdateRestaurant(Restaurant restaurant) {
+    public Restaurant updateRestaurant(Restaurant restaurant) {
     	Restaurant currentRestaurant = this.fetchRestaurantById(restaurant.getId());
         if (currentRestaurant == null) {
             return null;
@@ -43,25 +46,11 @@ public class RestaurantService {
 
         return this.restaurantRepository.save(currentRestaurant);
     }
-    
-    public Restaurant fetchRestaurantById(long id) {
-        Optional<Restaurant> companyOptional = this.restaurantRepository.findById(id);
-        if (companyOptional.isPresent()) {
-            return companyOptional.get();
-        }
 
-        return null;
-    }
-
-    
-    public List<Restaurant> fetchRestaurantByName(String name) {
-        return this.restaurantRepository.findByName(name);
-    }
-
-    public void handleDeleteRestaurant(long id) {
-        Optional<Restaurant> resOptional = this.restaurantRepository.findById(id);
-        if (resOptional.isPresent()) {
-        	Restaurant restaurant = resOptional.get();
+    public void deleteRestaurant(long id) {
+        Optional<Restaurant> restaurantOptional = this.restaurantRepository.findById(id);
+        if (restaurantOptional.isPresent()) {
+            Restaurant restaurant = restaurantOptional.get();
 
             // fetch all user belong to this restaurant
             List<User> users = this.userRepository.findByRestaurant(restaurant);
@@ -69,6 +58,19 @@ public class RestaurantService {
         }
 
         this.restaurantRepository.deleteById(id);
+    }
+
+    public Boolean isNameExist(String name) {
+        return this.restaurantRepository.existsByName(name);
+    }
+    
+    public List<Restaurant> fetchRestaurantByName(String name) {
+        return this.restaurantRepository.findByName(name);
+    }
+
+    public Restaurant fetchRestaurantById(long id) {
+        Optional<Restaurant> companyOptional = this.restaurantRepository.findById(id);
+        return companyOptional.orElse(null);
     }
 
     public ResultPaginationDTO handleFetchRestaurants(Specification<Restaurant> spec, Pageable pageable) {
@@ -86,15 +88,6 @@ public class RestaurantService {
         rs.setResult(pageRestaurant.getContent());
 
         return rs;
-    }
-
-    public Optional<Restaurant> fetchRestaurantOptionalById(long id) {
-        Optional<Restaurant> companyOptional = this.restaurantRepository.findById(id);
-        if (companyOptional.isPresent()) {
-            return companyOptional;
-        }
-
-        return null;
     }
    	
 }

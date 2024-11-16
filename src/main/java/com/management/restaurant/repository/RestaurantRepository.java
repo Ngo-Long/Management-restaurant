@@ -1,11 +1,10 @@
 package com.management.restaurant.repository;
 
+import java.util.List;
+
 import com.management.restaurant.domain.Restaurant;
 
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -14,5 +13,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  */
 @Repository
 public interface RestaurantRepository extends JpaRepository<Restaurant, Long>, JpaSpecificationExecutor<Restaurant> {
+	boolean existsByName(String name);
+
 	List<Restaurant> findByName(String name);
 }
