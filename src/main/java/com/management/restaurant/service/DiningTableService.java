@@ -55,7 +55,7 @@ public class DiningTableService {
         return diningTable.orElse(null);
     }
 
-    public ResultPaginationDTO fetchAllDiningTables(Specification<DiningTable> spec, Pageable pageable) {
+    public ResultPaginationDTO fetchDiningTables(Specification<DiningTable> spec, Pageable pageable) {
         Page<DiningTable> pageDiningTable = this.diningTableRepository.findAll(spec, pageable);
         ResultPaginationDTO rs = new ResultPaginationDTO();
         ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();

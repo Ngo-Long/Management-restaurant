@@ -143,11 +143,11 @@ public class DiningTableController {
      */
     @GetMapping("/dining-tables")
     @ApiMessage("Fetch all dining table")
-    public ResponseEntity<ResultPaginationDTO> fetchAllDiningTables(
+    public ResponseEntity<ResultPaginationDTO> fetchDiningTables(
             Pageable pageable,
             @Filter Specification<DiningTable> spec
     ) {
         log.debug("REST request to get all dining table");
-        return ResponseEntity.ok(this.diningTableService.fetchAllDiningTables(spec, pageable));
+        return ResponseEntity.ok(this.diningTableService.fetchDiningTables(spec, pageable));
     }
 }
