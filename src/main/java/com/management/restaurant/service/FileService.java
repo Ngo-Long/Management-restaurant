@@ -19,6 +19,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.beans.factory.annotation.Value;
 
+/**
+ * Service class for upload file.
+ */
 @Service
 public class FileService {
 
@@ -62,7 +65,7 @@ public class FileService {
 
         File tmpDir = new File(path.toString());
 
-        // file không tồn tại, hoặc file là 1 director => return 0
+        // file not found, or file is a director => return 0
         if (!tmpDir.exists() || tmpDir.isDirectory())
             return 0;
         return tmpDir.length();

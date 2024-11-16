@@ -1,7 +1,6 @@
-package com.management.restaurant.controller.admin;
+package com.management.restaurant.controller;
 
 import jakarta.validation.Valid;
-import java.net.URISyntaxException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,6 @@ import com.management.restaurant.util.error.IdInvalidException;
 
 import com.turkraft.springfilter.boot.Filter;
 
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
@@ -56,7 +54,7 @@ public class UserController {
     }
 
     /**
-     * {@code POST  /admin/users} : Creates a new user.
+     * {@code POST  /users} : Creates a new user.
      * <p>
      * Creates a new user if the login and email are not already used, and sends an
      * mail with an activation link.
@@ -70,7 +68,7 @@ public class UserController {
      * @throws IdInvalidException       {@code 400 (Bad Request)} if the login or
      *                                  email is already in use.
      */
-    @PostMapping("/admin/users")
+    @PostMapping("/users")
     @ApiMessage("Create a user")
     public ResponseEntity<ResCreateUserDTO> createUser(@Valid @RequestBody User dataUser) throws IdInvalidException {
     	log.debug("REST request to save User : {}", dataUser);
@@ -90,7 +88,7 @@ public class UserController {
     }
     
     /**
-     * {@code PUT /admin/users} : Updates an existing User.
+     * {@code PUT /users} : Updates an existing User.
      *
      * @param dataUser the user to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
@@ -98,7 +96,7 @@ public class UserController {
      * @throws IdInvalidException {@code 400 (Bad Request)} if the email is not
      *                                   already in use.
      */    
-    @PutMapping("/admin/users")
+    @PutMapping("/users")
     @ApiMessage("Update a user")
     public ResponseEntity<ResUpdateUserDTO> updateUser(@Valid @RequestBody User dataUser) throws IdInvalidException {
     	log.debug("REST request to update User : {}", dataUser);
@@ -112,12 +110,12 @@ public class UserController {
     }
 
     /**
-     * {@code DELETE /admin/users/:id} : delete the "id" User.
+     * {@code DELETE /users/:id} : delete the "id" User.
      *
      * @param id the id of the user to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
-    @DeleteMapping("/admin/users/{id}")
+    @DeleteMapping("/users/{id}")
     @ApiMessage("Delete a user")
     public ResponseEntity<Void> deleteUser(@PathVariable("id") Long id) throws IdInvalidException {
     	log.debug("REST request to delete User: {}", id);
@@ -131,13 +129,13 @@ public class UserController {
     }
     
     /**
-     * {@code GET /admin/users/:id} : get the "id" user.
+     * {@code GET /users/:id} : get the "id" user.
      *
      * @param id user by id
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
      *         the "id" user, or with status {@code 404 (Not Found)}.
      */
-    @GetMapping("/admin/users/{id}")
+    @GetMapping("/users/{id}")
     @ApiMessage("Fetch user by id")
     public ResponseEntity<ResUserDTO> getUserById(@PathVariable("id") long id) throws IdInvalidException {
     	log.debug("REST request to get User : {}", id);
@@ -151,7 +149,7 @@ public class UserController {
     }
 
     /**
-     * {@code GET /admin/users} : get all users with all the details - calling this
+     * {@code GET /users} : get all users with all the details - calling this
      * are only allowed for the administrators.
      *
      * @param pageable the pagination information.
@@ -159,10 +157,10 @@ public class UserController {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
      *         all users.
      */
-    @GetMapping("/admin/users")
+    @GetMapping("/users")
     @ApiMessage("Fetch all users")
     public ResponseEntity<ResultPaginationDTO> getUsers(Pageable pageable, @Filter Specification<User> spec) {
-    	log.debug("REST request to get all User for an admin");
+    	log.debug("REST request to get all User");
         return ResponseEntity.ok(this.userService.handleFetchUsers(spec, pageable));
     }
 }

@@ -3,16 +3,18 @@ package com.management.restaurant.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.stereotype.Service;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
 
-import com.management.restaurant.domain.Restaurant;
 import com.management.restaurant.domain.User;
+import com.management.restaurant.domain.Restaurant;
 import com.management.restaurant.domain.response.ResultPaginationDTO;
-import com.management.restaurant.repository.RestaurantRepository;
+
 import com.management.restaurant.repository.UserRepository;
+import com.management.restaurant.repository.RestaurantRepository;
 
 /**
  * Service class for managing restaurants.

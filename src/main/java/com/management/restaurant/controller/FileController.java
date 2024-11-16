@@ -1,4 +1,4 @@
-package com.management.restaurant.controller.client;
+package com.management.restaurant.controller;
 
 import java.util.List;
 import java.util.Arrays;

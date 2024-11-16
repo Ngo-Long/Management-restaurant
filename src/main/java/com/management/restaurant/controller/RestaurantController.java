@@ -1,5 +1,6 @@
-package com.management.restaurant.controller.admin;
+package com.management.restaurant.controller;
 
+import java.util.Objects;
 import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
@@ -26,8 +27,6 @@ import com.management.restaurant.service.RestaurantService;
 import com.management.restaurant.util.annotation.ApiMessage;
 import com.management.restaurant.util.error.InfoInvalidException;
 
-import java.util.Objects;
-
 /**
  * REST controller for managing restaurants.
  * This class accesses the {@link com.management.restaurant.domain.Restaurant} entity
@@ -48,10 +47,11 @@ public class RestaurantController {
      * {@code POST  /restaurants} : Create a new restaurant.
      *
      * @param restaurant the restaurant to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new restaurants, or with status {@code 400 (Bad Request)} if the restaurants name already exists.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new restaurants,
+     *         or with status {@code 400 (Bad Request)} if the restaurants name already exists.
      * @throws InfoInvalidException if the restaurant name already exists or if the input information is invalid.
      */
-    @PostMapping("/admin/restaurants")
+    @PostMapping("/restaurants")
     @ApiMessage("Create a restaurant")
     public ResponseEntity<Restaurant> createRestaurant(@Valid @RequestBody Restaurant restaurant)
         throws InfoInvalidException {
@@ -59,7 +59,7 @@ public class RestaurantController {
 
         boolean isNameExits = this.restaurantService.isNameExist(restaurant.getName());
         if (isNameExits) {
-            throw new InfoInvalidException("Tên nhà hàng đã tồn tại, vui lòng sử dụng tên khác!");
+            throw new InfoInvalidException("Tên đã tồn tại, vui lòng sử dụng tên khác!");
         }
 
         Restaurant newRestaurant = this.restaurantService.createRestaurant(restaurant);
@@ -74,7 +74,7 @@ public class RestaurantController {
      *         or with status {@code 400 (Bad Request)} if the restaurant is invalid or if the name already exists.
      * @throws InfoInvalidException if the restaurant does not exist or if the restaurant name is already taken.
      */
-    @PutMapping("/admin/restaurants")
+    @PutMapping("/restaurants")
     @ApiMessage("Update a restaurant")
     public ResponseEntity<Restaurant> updateRestaurant(@Valid @RequestBody Restaurant restaurant) throws InfoInvalidException {
     	log.debug("REST request to update Restaurant : {}", restaurant);
@@ -86,7 +86,7 @@ public class RestaurantController {
 
         boolean isNameExist = this.restaurantService.isNameExist(restaurant.getName());
         if (isNameExist && !Objects.equals(currentRestaurant.getName(), restaurant.getName())) {
-            throw new InfoInvalidException("Tên đã tồn tại, vui lòng sử dụng tên khác 123!");
+            throw new InfoInvalidException("Tên đã tồn tại, vui lòng sử dụng tên khác!");
         }
     	
         Restaurant dataRestaurant = this.restaurantService.updateRestaurant(restaurant);
@@ -99,7 +99,7 @@ public class RestaurantController {
      * @param id the id of the restaurants to delete.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)}.
      */
-    @DeleteMapping("/admin/restaurants/{id}")
+    @DeleteMapping("/restaurants/{id}")
     @ApiMessage("Delete a restaurant")
     public ResponseEntity<Void> deleteRestaurantById(@PathVariable("id") Long id) throws InfoInvalidException {
     	log.debug("REST request to delete Restaurant: {}", id);
@@ -117,10 +117,11 @@ public class RestaurantController {
      * {@code GET  /restaurants/:id} : get the "id" restaurant.
      *
      * @param id the id of the restaurants to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the restaurants, or with status {@code 400 (Bad Request)}.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the restaurants,
+     *         or with status {@code 400 (Bad Request)}.
      */
-    @GetMapping("/admin/restaurants/{id}")
-    @ApiMessage("Get a restaurant")
+    @GetMapping("/restaurants/{id}")
+    @ApiMessage("Get restaurant by id")
     public ResponseEntity<Restaurant> getRestaurantById(@PathVariable("id") long id) throws InfoInvalidException {
     	log.debug("REST request to get Restaurant : {}", id);
     	
@@ -133,16 +134,16 @@ public class RestaurantController {
     }
 
     /**
-     * {@code GET  /admin/restaurants} : Fetch all restaurants.
+     * {@code GET  /restaurants} : Fetch all restaurants.
      *
      * @param pageable the pagination information.
      * @param spec the filtering criteria to apply to the restaurant list.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of restaurants in the body.
      */
-    @GetMapping("/admin/restaurants")
+    @GetMapping("/restaurants")
     @ApiMessage("Fetch all restaurants")
     public ResponseEntity<ResultPaginationDTO> getRestaurants(Pageable pageable, @Filter Specification<Restaurant> spec) {
-    	log.debug("REST request to get all Restaurant for an admin");
+    	log.debug("REST request to get all Restaurant");
         return ResponseEntity.ok(this.restaurantService.handleFetchRestaurants(spec, pageable));
     }
 

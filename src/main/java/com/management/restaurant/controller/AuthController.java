@@ -1,4 +1,4 @@
-package com.management.restaurant.controller.client;
+package com.management.restaurant.controller;
 
 import jakarta.validation.Valid;
 
@@ -197,7 +197,7 @@ public class AuthController {
         String hashPassword = this.passwordEncoder.encode(dataUser.getPassword());
         dataUser.setPassword(hashPassword);
 
-        User newUser = this.userService.create(dataUser);
+        User newUser = this.userService.createUser(dataUser);
         ResCreateUserDTO res = this.userService.convertToResCreateUserDTO(newUser);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
