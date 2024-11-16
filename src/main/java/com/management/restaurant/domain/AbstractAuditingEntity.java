@@ -9,6 +9,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 
+import java.io.Serial;
 import java.time.Instant;
 
 import org.springframework.data.annotation.CreatedBy;
@@ -29,7 +30,8 @@ import com.management.restaurant.util.SecurityUtil;
 @JsonIgnoreProperties(value = { "createdBy", "createdDate", "lastModifiedBy", "lastModifiedDate" }, allowGetters = true)
 public abstract class AbstractAuditingEntity<T> implements Serializable {
 	
-	private static final long serialVersionUID = 1L;
+	@Serial
+    private static final long serialVersionUID = 1L;
 	
 	public abstract T getId();
 

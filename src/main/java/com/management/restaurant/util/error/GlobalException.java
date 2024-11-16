@@ -46,6 +46,18 @@ public class GlobalException {
     }
 
     @ExceptionHandler(value = {
+            InfoInvalidException.class
+    })
+    public ResponseEntity<ResRestDTO<Object>> handleNameException(Exception ex) {
+        ResRestDTO<Object> res = new ResRestDTO<Object>();
+        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
+        res.setMessage(ex.getMessage());
+        res.setError("Thông tin không hợp lệ!");
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    }
+
+    @ExceptionHandler(value = {
             NoResourceFoundException.class,
     })
     public ResponseEntity<ResRestDTO<Object>> handleNotFoundException(Exception ex) {
