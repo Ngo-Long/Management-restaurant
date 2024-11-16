@@ -19,4 +19,12 @@ public class ResUpdateUserDTO {
 	private boolean active;
     private GenderEnum gender;
     private Instant lastModifiedDate;
+	private RestaurantUser restaurant;
+
+	@Setter
+	@Getter
+	public static class RestaurantUser {
+		private long id;
+		private String name;
+	}
 }

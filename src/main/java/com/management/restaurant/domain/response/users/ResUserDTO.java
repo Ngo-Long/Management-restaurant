@@ -27,5 +27,26 @@ public class ResUserDTO {
 	private boolean active;
     private GenderEnum gender;
     private Instant createdDate;
-    private Instant lastModifiedDate;    
+    private Instant lastModifiedDate;
+
+	private RoleUser role;
+	private RestaurantUser restaurant;
+
+	@Setter
+	@Getter
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class RoleUser {
+		private long id;
+		private String name;
+	}
+
+	@Setter
+	@Getter
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class RestaurantUser {
+		private long id;
+		private String name;
+	}
 }

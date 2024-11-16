@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.management.restaurant.domain.Role;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,33 +27,53 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final RestaurantService restaurantService;
+    private final RoleService roleService;
 
-    public UserService(UserRepository userRepository,RestaurantService restaurantService) {
+    public UserService(
+            UserRepository userRepository,
+            RestaurantService restaurantService,
+            RoleService roleService) {
         this.userRepository = userRepository;
         this.restaurantService = restaurantService;
+        this.roleService = roleService;
     }
 
-    public User createUser(User dataUser) {
-        if (dataUser.getRestaurant() != null) {
-        	Restaurant dataRestaurant = this.restaurantService.fetchRestaurantById(dataUser.getRestaurant().getId());            
-            dataUser.setRestaurant(dataRestaurant != null ? dataRestaurant : null);
+    public User createUser(User user) {
+        if (user.getRestaurant() != null) {
+        	Restaurant restaurant = this.restaurantService.fetchRestaurantById(user.getRestaurant().getId());
+            user.setRestaurant(restaurant != null ? restaurant : null);
+        }
+
+        if (user.getRole() != null) {
+            Role role = this.roleService.fetchRoleById(user.getRole().getId());
+            user.setRole(role != null ? role : null);
         }
         
-        return this.userRepository.save(dataUser);
+        return this.userRepository.save(user);
     }
     
-    public User updateUser(User dataUser) {
-    	User currentUser = this.fetchUserById(dataUser.getId());
+    public User updateUser(User user) {
+    	User currentUser = this.fetchUserById(user.getId());
         if (currentUser == null) {
             return null;
         }
+
+        if (user.getRestaurant() != null) {
+            Restaurant restaurant = this.restaurantService.fetchRestaurantById(user.getRestaurant().getId());
+            currentUser.setRestaurant(restaurant != null ? restaurant : null);
+        }
+
+        if (user.getRole() != null) {
+            Role role = this.roleService.fetchRoleById(user.getRole().getId());
+            currentUser.setRole(role != null ? role : null);
+        }
         
-        currentUser.setFullName(dataUser.getFullName());
-        currentUser.setPhone(dataUser.getPhone());
-        currentUser.setGender(dataUser.getGender());
-        currentUser.setAvatar(dataUser.getAvatar());
-        currentUser.setAddress(dataUser.getAddress());
-        currentUser.setActive(dataUser.isActive());
+        currentUser.setFullName(user.getFullName());
+        currentUser.setPhone(user.getPhone());
+        currentUser.setGender(user.getGender());
+        currentUser.setAvatar(user.getAvatar());
+        currentUser.setAddress(user.getAddress());
+        currentUser.setActive(user.isActive());
         
         return this.userRepository.save(currentUser);
     }
@@ -99,6 +120,7 @@ public class UserService {
      * @return a {@link ResUserDTO} containing the user details.
      */
     public ResUserDTO convertToResUserDTO(User user) {
+        // create response user DTO
         ResUserDTO res = new ResUserDTO();
         res.setId(user.getId());
         res.setEmail(user.getEmail());
@@ -111,6 +133,22 @@ public class UserService {
         res.setCreatedDate(user.getCreatedDate());
         res.setLastModifiedDate(user.getLastModifiedDate());
 
+        // create response restaurant user DTO
+        ResUserDTO.RestaurantUser restaurantUser = new ResUserDTO.RestaurantUser();
+        if (user.getRestaurant() != null) {
+            restaurantUser.setId(user.getRestaurant().getId());
+            restaurantUser.setName(user.getRestaurant().getName());
+            res.setRestaurant(restaurantUser);
+        }
+
+        // create response role user DTO
+        ResUserDTO.RoleUser roleUser = new ResUserDTO.RoleUser();
+        if (user.getRole() != null) {
+            roleUser.setId(user.getRole().getId());
+            roleUser.setName(user.getRole().getName());
+            res.setRole(roleUser);
+        }
+
         return res;
     }
 
@@ -122,6 +160,7 @@ public class UserService {
      */
     public ResCreateUserDTO convertToResCreateUserDTO(User user) {
         ResCreateUserDTO res = new ResCreateUserDTO();
+        ResCreateUserDTO.RestaurantUser restaurant = new ResCreateUserDTO.RestaurantUser();
 
         res.setId(user.getId());
         res.setEmail(user.getEmail());
@@ -132,6 +171,12 @@ public class UserService {
         res.setAddress(user.getAddress());
         res.setActive(user.isActive());
         res.setCreatedDate(user.getCreatedDate());
+
+        if (user.getRestaurant() != null) {
+            restaurant.setId(user.getRestaurant().getId());
+            restaurant.setName(user.getRestaurant().getName());
+            res.setRestaurant(restaurant);
+        }
        
         return res;
     }
@@ -144,6 +189,7 @@ public class UserService {
      */
     public ResUpdateUserDTO convertToResUpdateUserDTO(User user) {
     	ResUpdateUserDTO res = new ResUpdateUserDTO();
+        ResUpdateUserDTO.RestaurantUser restaurant = new ResUpdateUserDTO.RestaurantUser();
 
         res.setId(user.getId());
         res.setEmail(user.getEmail());
@@ -154,6 +200,12 @@ public class UserService {
         res.setAddress(user.getAddress());
         res.setActive(user.isActive());
         res.setLastModifiedDate(user.getLastModifiedDate());
+
+        if (user.getRestaurant() != null) {
+            restaurant.setId(user.getRestaurant().getId());
+            restaurant.setName(user.getRestaurant().getName());
+            res.setRestaurant(restaurant);
+        }
        
         return res;
     }
@@ -165,7 +217,7 @@ public class UserService {
      * @param pageable the pagination information.
      * @return a {@link ResultPaginationDTO} containing the list of users and pagination metadata.
      */
-    public ResultPaginationDTO handleFetchUsers(Specification<User> spec, Pageable pageable) {
+    public ResultPaginationDTO fetchUsersDTO(Specification<User> spec, Pageable pageable) {
         Page<User> pageUser = this.userRepository.findAll(spec, pageable);
         ResultPaginationDTO rs = new ResultPaginationDTO();
         ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();
@@ -180,7 +232,7 @@ public class UserService {
 
         // remove sensitive data
         List<ResUserDTO> listUser = pageUser.getContent()
-                .stream().map(item -> this.convertToResUserDTO(item))
+                .stream().map(this::convertToResUserDTO)
                 .collect(Collectors.toList());
 
         rs.setResult(listUser);

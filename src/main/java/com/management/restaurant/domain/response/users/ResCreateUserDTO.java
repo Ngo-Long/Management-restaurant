@@ -20,4 +20,12 @@ public class ResCreateUserDTO {
 	private String address;
 	private boolean active;
     private Instant createdDate;
+	private RestaurantUser restaurant;
+
+	@Setter
+	@Getter
+	public static class RestaurantUser {
+		private long id;
+		private String name;
+	}
 }
