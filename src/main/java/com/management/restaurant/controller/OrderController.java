@@ -17,6 +17,10 @@ import com.management.restaurant.domain.response.ResultPaginationDTO;
 import com.management.restaurant.util.annotation.ApiMessage;
 import com.management.restaurant.util.error.InfoInvalidException;
 
+import com.management.restaurant.domain.response.order.ResOrderDTO;
+import com.management.restaurant.domain.response.order.ResCreateOrderDTO;
+import com.management.restaurant.domain.response.order.ResUpdateOrderDTO;
+
 /**
  * REST controller for managing orders.
  * This class accesses the {@link com.management.restaurant.domain.Order} entity
@@ -42,11 +46,14 @@ public class OrderController {
      */
     @PostMapping("/orders")
     @ApiMessage("Create a order")
-    public ResponseEntity<Order> createOrder(@RequestBody Order order) {
+    public ResponseEntity<ResCreateOrderDTO> createOrder(@RequestBody Order order) {
         log.debug("REST request to save order : {}", order);
 
         Order dataOrder = this.orderService.createOrder(order);
-        return ResponseEntity.status(HttpStatus.CREATED).body(dataOrder);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(this.orderService.convertToResCreateOrderDTO(dataOrder));
     }
 
     /**
@@ -59,7 +66,7 @@ public class OrderController {
      */
     @PutMapping("/orders")
     @ApiMessage("Update a order")
-    public ResponseEntity<Order> updateOrder(@RequestBody Order order)
+    public ResponseEntity<ResUpdateOrderDTO> updateOrder(@RequestBody Order order)
     throws InfoInvalidException {
         log.debug("REST request to update order : {}", order);
 
@@ -68,7 +75,7 @@ public class OrderController {
             throw new InfoInvalidException("Đơn hàng không tồn tại");
         }
 
-        return ResponseEntity.ok(dataOrder);
+        return ResponseEntity.ok(this.orderService.convertToResUpdateOrderDTO(dataOrder));
     }
 
     /**
@@ -96,7 +103,7 @@ public class OrderController {
      */
     @GetMapping("/orders/{id}")
     @ApiMessage("Get a order by id")
-    public ResponseEntity<Order> getOrderById(@PathVariable Long id) throws InfoInvalidException {
+    public ResponseEntity<ResOrderDTO> getOrderById(@PathVariable Long id) throws InfoInvalidException {
         log.debug("REST request to get order : {}", id);
 
         Order dataOrder = this.orderService.fetchOrderById(id);
@@ -104,7 +111,7 @@ public class OrderController {
             throw new InfoInvalidException("Đơn hàng không tồn tại!");
         }
 
-        return ResponseEntity.ok(dataOrder);
+        return ResponseEntity.ok(this.orderService.convertToResOrderDTO(dataOrder));
     }
 
     /**
@@ -119,6 +126,6 @@ public class OrderController {
     @ApiMessage("Get filter orders")
     public ResponseEntity<ResultPaginationDTO> getOrders(Pageable pageable,@Filter Specification<Order> spec) {
         log.debug("REST request to get order filter");
-        return ResponseEntity.ok(this.orderService.fetchOrders(spec, pageable));
+        return ResponseEntity.ok(this.orderService.fetchOrdersDTO(spec, pageable));
     }
 }

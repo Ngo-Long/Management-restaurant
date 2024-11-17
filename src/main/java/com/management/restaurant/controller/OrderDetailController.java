@@ -1,5 +1,8 @@
 package com.management.restaurant.controller;
 
+import com.management.restaurant.domain.response.orderDetail.ResCreateOrderDetailDTO;
+import com.management.restaurant.domain.response.orderDetail.ResOrderDetailDTO;
+import com.management.restaurant.domain.response.orderDetail.ResUpdateOrderDetailDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -42,11 +45,13 @@ public class OrderDetailController {
      */
     @PostMapping("/order-details")
     @ApiMessage("Create a order detail")
-    public ResponseEntity<OrderDetail> createOrderDetail(@RequestBody OrderDetail orderDetail) {
+    public ResponseEntity<ResCreateOrderDetailDTO> createOrderDetail(@RequestBody OrderDetail orderDetail) {
         log.debug("REST request to save order detail : {}", orderDetail);
 
         OrderDetail dataOrderDetail = this.orderDetailService.createOrderDetail(orderDetail);
-        return ResponseEntity.status(HttpStatus.CREATED).body(dataOrderDetail);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(this.orderDetailService.convertToResCreateOrderDetailDTO(dataOrderDetail));
     }
 
     /**
@@ -59,7 +64,7 @@ public class OrderDetailController {
      */
     @PutMapping("/order-details")
     @ApiMessage("Update a order detail")
-    public ResponseEntity<OrderDetail> updateOrderDetail(@RequestBody OrderDetail orderDetail)
+    public ResponseEntity<ResUpdateOrderDetailDTO> updateOrderDetail(@RequestBody OrderDetail orderDetail)
             throws InfoInvalidException {
         log.debug("REST request to update order detail : {}", orderDetail);
 
@@ -68,7 +73,8 @@ public class OrderDetailController {
             throw new InfoInvalidException("Đơn hàng chi tiết không tồn tại");
         }
 
-        return ResponseEntity.ok(dataOrderDetail);
+        return ResponseEntity
+                .ok(this.orderDetailService.convertToResUpdateOrderDetailDTO(dataOrderDetail));
     }
 
     /**
@@ -96,15 +102,17 @@ public class OrderDetailController {
      */
     @GetMapping("/order-details/{id}")
     @ApiMessage("Get a order detail by id")
-    public ResponseEntity<OrderDetail> getOrderDetailById(@PathVariable Long id) throws InfoInvalidException {
+    public ResponseEntity<ResOrderDetailDTO> getOrderDetailById(@PathVariable Long id)
+            throws InfoInvalidException {
         log.debug("REST request to get order detail : {}", id);
 
-        OrderDetail dataOrder = this.orderDetailService.getOrderDetailById(id);
-        if (dataOrder == null) {
+        OrderDetail dataOrderDetail = this.orderDetailService.getOrderDetailById(id);
+        if (dataOrderDetail == null) {
             throw new InfoInvalidException("Chi tiết đơn hàng không tồn tại!");
         }
 
-        return ResponseEntity.ok(dataOrder);
+        return ResponseEntity
+                .ok(this.orderDetailService.convertToResOrderDetailDTO(dataOrderDetail));
     }
 
     /**
@@ -119,6 +127,6 @@ public class OrderDetailController {
     @ApiMessage("Get filter order details")
     public ResponseEntity<ResultPaginationDTO> getOrderDetails(Pageable pageable,@Filter Specification<OrderDetail> spec) {
         log.debug("REST request to get order filter");
-        return ResponseEntity.ok(this.orderDetailService.fetchOrderDetails(spec, pageable));
+        return ResponseEntity.ok(this.orderDetailService.fetchOrderDetailsDTO(spec, pageable));
     }
 }
