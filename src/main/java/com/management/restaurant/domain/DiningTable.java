@@ -44,7 +44,7 @@ public class DiningTable extends AbstractAuditingEntity<Long> implements Seriali
     @JoinColumn(name = "restaurant_id")
     private Restaurant restaurant;
     
-    @OneToMany(mappedBy = "dining_table", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "diningTable", fetch = FetchType.LAZY)
     @JsonIgnore
     List<Order> orders;
 

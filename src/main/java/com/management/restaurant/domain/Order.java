@@ -5,11 +5,7 @@ import lombok.Setter;
 
 import java.util.List;
 import java.io.Serializable;
-
 import jakarta.persistence.*;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GenerationType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.management.restaurant.domain.enumeration.OrderOptionEnum;
@@ -43,7 +39,7 @@ public class Order extends AbstractAuditingEntity<Long> implements Serializable 
 
     @ManyToOne
     @JoinColumn(name = "dining_table_id")
-    private DiningTable dining_table;
+    private DiningTable diningTable;
     
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
     @JsonIgnore
