@@ -21,7 +21,6 @@ import com.management.restaurant.service.RoleService;
 import com.management.restaurant.util.annotation.ApiMessage;
 import com.management.restaurant.util.error.InfoInvalidException;
 
-
 /**
  * REST controller for managing roles.
  * This class accesses the {@link Role} entity

@@ -120,7 +120,7 @@ public class UserService {
      * @return a {@link ResUserDTO} containing the user details.
      */
     public ResUserDTO convertToResUserDTO(User user) {
-        // create response user DTO
+        // response user DTO
         ResUserDTO res = new ResUserDTO();
         res.setId(user.getId());
         res.setEmail(user.getEmail());
@@ -133,7 +133,7 @@ public class UserService {
         res.setCreatedDate(user.getCreatedDate());
         res.setLastModifiedDate(user.getLastModifiedDate());
 
-        // create response restaurant user DTO
+        // response restaurant - user DTO
         ResUserDTO.RestaurantUser restaurantUser = new ResUserDTO.RestaurantUser();
         if (user.getRestaurant() != null) {
             restaurantUser.setId(user.getRestaurant().getId());
@@ -141,7 +141,7 @@ public class UserService {
             res.setRestaurant(restaurantUser);
         }
 
-        // create response role user DTO
+        // response role - user DTO
         ResUserDTO.RoleUser roleUser = new ResUserDTO.RoleUser();
         if (user.getRole() != null) {
             roleUser.setId(user.getRole().getId());

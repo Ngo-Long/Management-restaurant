@@ -22,7 +22,6 @@ import org.springframework.data.jpa.domain.Specification;
 
 import org.springframework.web.bind.annotation.*;
 
-
 /**
  * REST controller for managing permissions.
  * This class accesses the {@link Permission} entity
