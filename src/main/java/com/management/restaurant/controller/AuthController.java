@@ -1,29 +1,24 @@
 package com.management.restaurant.controller;
 
 import jakarta.validation.Valid;
+import com.management.restaurant.service.UserService;
 
 import com.management.restaurant.domain.User;
 import com.management.restaurant.domain.request.ReqLoginDTO;
 import com.management.restaurant.domain.response.ResLoginDTO;
 import com.management.restaurant.domain.response.user.ResCreateUserDTO;
-import com.management.restaurant.service.UserService;
+
 import com.management.restaurant.util.SecurityUtil;
 import com.management.restaurant.util.annotation.ApiMessage;
 import com.management.restaurant.util.error.IdInvalidException;
 
+import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Value;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.core.Authentication;

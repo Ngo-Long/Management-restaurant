@@ -12,14 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.turkraft.springfilter.boot.Filter;
 import com.management.restaurant.util.error.InfoInvalidException;
@@ -146,7 +139,7 @@ public class UserController {
     }
 
     /**
-     * {@code GET /users} : get all users with all the details - calling this
+     * {@code GET /users} : get all users with filter the details - calling this
      * are only allowed for the administrators.
      *
      * @param pageable the pagination information.
@@ -155,9 +148,9 @@ public class UserController {
      *         all users.
      */
     @GetMapping("/users")
-    @ApiMessage("Fetch all users")
+    @ApiMessage("Fetch filter users")
     public ResponseEntity<ResultPaginationDTO> fetchUsers(Pageable pageable, @Filter Specification<User> spec) {
-    	log.debug("REST request to get all User");
+    	log.debug("REST request to get user filter");
         return ResponseEntity.ok(this.userService.fetchUsersDTO(spec, pageable));
     }
 }

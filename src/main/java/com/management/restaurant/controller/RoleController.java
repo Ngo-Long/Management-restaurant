@@ -10,14 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.turkraft.springfilter.boot.Filter;
 
@@ -129,17 +122,17 @@ public class RoleController {
     }
 
     /**
-     * {@code GET  /admin/roles} : Fetch all roles.
+     * {@code GET  /roles} : Fetch filter roles.
      *
      * @param pageable the pagination information.
      * @param spec the filtering criteria to apply to the role list.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of roles in the body.
      */
     @GetMapping("/roles")
-    @ApiMessage("Fetch roles")
+    @ApiMessage("Fetch filter roles")
     public ResponseEntity<ResultPaginationDTO> getRoles(
             @Filter Specification<Role> spec, Pageable pageable) {
-        log.debug("REST request to get all Restaurant for an admin");
+        log.debug("REST request to get filter role");
         return ResponseEntity.ok().body(this.roleService.getRoles(spec, pageable));
     }
 }

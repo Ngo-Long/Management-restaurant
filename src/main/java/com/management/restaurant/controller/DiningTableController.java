@@ -19,14 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * REST controller for managing dining tables.
@@ -135,19 +128,16 @@ public class DiningTableController {
     }
 
     /**
-     * {@code GET  /dining-tables} : Fetch all dining tables.
+     * {@code GET  /dining-tables} : Fetch filter dining tables.
      *
      * @param pageable the pagination information.
      * @param spec the filtering criteria to apply to the dining table list.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of dining tables in the body.
      */
     @GetMapping("/dining-tables")
-    @ApiMessage("Fetch all dining table")
-    public ResponseEntity<ResultPaginationDTO> fetchDiningTables(
-            Pageable pageable,
-            @Filter Specification<DiningTable> spec
-    ) {
-        log.debug("REST request to get all dining table");
+    @ApiMessage("Fetch filter dining tables")
+    public ResponseEntity<ResultPaginationDTO> fetchDiningTables(Pageable pageable, @Filter Specification<DiningTable> spec) {
+        log.debug("REST request to get dining table filter");
         return ResponseEntity.ok(this.diningTableService.fetchDiningTables(spec, pageable));
     }
 }

@@ -20,14 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 
 /**
@@ -139,16 +132,16 @@ public class PermissionController {
     }
 
     /**
-     * {@code GET  /permissions} : Fetch all permissions.
+     * {@code GET  /permissions} : Fetch filter permissions.
      *
      * @param pageable the pagination information.
      * @param spec the filtering criteria to apply to the permission list.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of restaurants in the body.
      */
     @GetMapping("/permissions")
-    @ApiMessage("Fetch permissions")
+    @ApiMessage("Fetch filter permissions")
     public ResponseEntity<ResultPaginationDTO> getPermissions(@Filter Specification<Permission> spec, Pageable pageable) {
-        log.debug("REST request to get all Permission");
+        log.debug("REST request to get permission filter");
         return ResponseEntity.ok(this.permissionService.fetchPermissions(spec, pageable));
     }
 
