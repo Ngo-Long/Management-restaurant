@@ -1,5 +1,8 @@
 package com.management.restaurant.controller;
 
+import com.management.restaurant.domain.response.invoice.ResCreateInvoiceDTO;
+import com.management.restaurant.domain.response.invoice.ResInvoiceDTO;
+import com.management.restaurant.domain.response.invoice.ResUpdateInvoiceDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,11 +47,13 @@ public class InvoiceController {
      */
     @PostMapping("/invoices")
     @ApiMessage("Create a invoice")
-    public ResponseEntity<Invoice> createInvoice(@RequestBody Invoice invoice) {
+    public ResponseEntity<ResCreateInvoiceDTO> createInvoice(@RequestBody Invoice invoice) {
         log.debug("REST request to save invoice : {}", invoice);
 
         Invoice dataInvoice = this.invoiceService.createInvoice(invoice);
-        return ResponseEntity.status(HttpStatus.CREATED).body(dataInvoice);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(this.invoiceService.convertToResCreateInvoiceDTO(dataInvoice));
     }
 
     /**
@@ -61,7 +66,7 @@ public class InvoiceController {
      */
     @PutMapping("/invoices")
     @ApiMessage("Update a invoice")
-    public ResponseEntity<Invoice> updateInvoice(@RequestBody Invoice invoice)
+    public ResponseEntity<ResUpdateInvoiceDTO> updateInvoice(@RequestBody Invoice invoice)
     throws InfoInvalidException {
         log.debug("REST request to update invoice : {}", invoice);
 
@@ -70,7 +75,8 @@ public class InvoiceController {
             throw new InfoInvalidException("Hóa đơn không tồn tại");
         }
 
-        return ResponseEntity.ok(dataInvoice);
+        return ResponseEntity
+                .ok(this.invoiceService.convertToResUpdateInvoiceDTO(dataInvoice));
     }
 
     /**
@@ -98,7 +104,8 @@ public class InvoiceController {
      */
     @GetMapping("/invoices/{id}")
     @ApiMessage("Get a invoice by id")
-    public ResponseEntity<Invoice> getInvoiceById(@PathVariable Long id) throws InfoInvalidException {
+    public ResponseEntity<ResInvoiceDTO> getInvoiceById(@PathVariable Long id)
+            throws InfoInvalidException {
         log.debug("REST request to get invoice : {}", id);
 
         Invoice dataInvoice = this.invoiceService.fetchInvoiceById(id);
@@ -106,7 +113,8 @@ public class InvoiceController {
             throw new InfoInvalidException("Hóa đơn không tồn tại!");
         }
 
-        return ResponseEntity.ok(dataInvoice);
+        return ResponseEntity
+                .ok(this.invoiceService.convertToResInvoiceDTO(dataInvoice));
     }
 
     /**
@@ -121,6 +129,6 @@ public class InvoiceController {
     @ApiMessage("Get filter invoices")
     public ResponseEntity<ResultPaginationDTO> getInvoices(Pageable pageable,@Filter Specification<Invoice> spec) {
         log.debug("REST request to get invoice filter");
-        return ResponseEntity.ok(this.invoiceService.fetchInvoices(spec, pageable));
+        return ResponseEntity.ok(this.invoiceService.fetchInvoicesDTO(spec, pageable));
     }
 }
