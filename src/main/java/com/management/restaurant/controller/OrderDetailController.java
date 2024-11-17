@@ -19,13 +19,13 @@ import com.management.restaurant.util.error.InfoInvalidException;
 
 /**
  * REST controller for managing order details.
- * This class accesses the {@link com.management.restaurant.domain.OrderDetail} entity
+ * This class accesses the {@link OrderDetail} entity
  */
 @RestController
 @RequestMapping("/api/v1")
 public class OrderDetailController {
 
-    private final Logger log = LoggerFactory.getLogger(RestaurantController.class);
+    private final Logger log = LoggerFactory.getLogger(OrderDetailController.class);
 
     private final OrderDetailService orderDetailService;
 

@@ -71,8 +71,8 @@ public class RestaurantService {
     }
 
     public Restaurant fetchRestaurantById(Long id) {
-        Optional<Restaurant> companyOptional = this.restaurantRepository.findById(id);
-        return companyOptional.orElse(null);
+        Optional<Restaurant> restaurantOptional = this.restaurantRepository.findById(id);
+        return restaurantOptional.orElse(null);
     }
 
     public ResultPaginationDTO fetchRestaurants(Specification<Restaurant> spec, Pageable pageable) {

@@ -23,13 +23,13 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * REST controller for managing dining tables.
- * This class accesses the {@link com.management.restaurant.domain.DiningTable} entity
+ * This class accesses the {@link DiningTable} entity
  */
 @RestController
 @RequestMapping("/api/v1")
 public class DiningTableController {
 
-    private final Logger log = LoggerFactory.getLogger(RestaurantController.class);
+    private final Logger log = LoggerFactory.getLogger(DiningTableController.class);
 
     private final DiningTableService diningTableService;
 
@@ -100,7 +100,7 @@ public class DiningTableController {
 
         DiningTable currentTable = this.diningTableService.fetchDiningTableById(id);
         if (currentTable == null) {
-            throw new InfoInvalidException("Nhà hàng không tồn tại!");
+            throw new InfoInvalidException("Bàn ăn không tồn tại!");
         }
 
         this.diningTableService.deleteDiningTableById(id);
@@ -121,7 +121,7 @@ public class DiningTableController {
 
         DiningTable dataTable = this.diningTableService.fetchDiningTableById(id);
         if (dataTable == null) {
-            throw new InfoInvalidException("Nhà hàng không tồn tại!");
+            throw new InfoInvalidException("Bàn ăn không tồn tại!");
         }
 
         return ResponseEntity.ok().body(dataTable);

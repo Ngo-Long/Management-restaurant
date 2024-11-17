@@ -3,9 +3,9 @@ package com.management.restaurant.domain;
 import lombok.Getter;
 import lombok.Setter;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 

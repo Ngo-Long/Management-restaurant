@@ -29,7 +29,7 @@ import org.springframework.data.jpa.domain.Specification;
 @RequestMapping("/api/v1")
 public class ProductController {
 
-    private final Logger log = LoggerFactory.getLogger(RestaurantController.class);
+    private final Logger log = LoggerFactory.getLogger(ProductController.class);
 
     private final ProductService productService;
 

@@ -25,13 +25,13 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * REST controller for managing permissions.
- * This class accesses the {@link com.management.restaurant.domain.Permission} entity
+ * This class accesses the {@link Permission} entity
  */
 @RestController
 @RequestMapping("/api/v1")
 public class PermissionController {
 
-    private final Logger log = LoggerFactory.getLogger(RestaurantController.class);
+    private final Logger log = LoggerFactory.getLogger(PermissionController.class);
 
     private final PermissionService permissionService;
 
@@ -51,7 +51,7 @@ public class PermissionController {
     @PostMapping("/permissions")
     @ApiMessage("Create a permission")
     public ResponseEntity<Permission> createPermission(@Valid @RequestBody Permission permission) throws InfoInvalidException {
-        log.debug("REST request to save Restaurant : {}", permission);
+        log.debug("REST request to save Permission : {}", permission);
 
         if (this.permissionService.isNameExist(permission.getName()))  {
             throw new InfoInvalidException("Tên đã tồn tại, vui lòng sử dụng tên khác!");
@@ -84,7 +84,7 @@ public class PermissionController {
     @PutMapping("/permissions")
     @ApiMessage("Update a permission")
     public ResponseEntity<Permission> updatePermission(@Valid @RequestBody Permission permission) throws InfoInvalidException {
-        log.debug("REST request to update Restaurant : {}", permission);
+        log.debug("REST request to update Permission : {}", permission);
 
         Permission currentPermission = this.permissionService.fetchPermissionById(permission.getId());
         if (currentPermission == null) {
@@ -121,7 +121,7 @@ public class PermissionController {
     @DeleteMapping("/permissions/{id}")
     @ApiMessage("Delete a permission")
     public ResponseEntity<Void> deletePermissionById(@PathVariable("id") long id) throws InfoInvalidException {
-        log.debug("REST request to delete Restaurant: {}", id);
+        log.debug("REST request to delete Permission: {}", id);
 
         if (this.permissionService.fetchPermissionById(id) == null) {
             throw new InfoInvalidException("Quyền hạn không tồn tại!");
@@ -136,7 +136,7 @@ public class PermissionController {
      *
      * @param pageable the pagination information.
      * @param spec the filtering criteria to apply to the permission list.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of restaurants in the body.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of permissions in the body.
      */
     @GetMapping("/permissions")
     @ApiMessage("Fetch filter permissions")

@@ -25,7 +25,7 @@ import com.management.restaurant.util.error.InfoInvalidException;
 @RequestMapping("/api/v1")
 public class OrderController {
 
-    private final Logger log = LoggerFactory.getLogger(RestaurantController.class);
+    private final Logger log = LoggerFactory.getLogger(OrderController.class);
 
     private final OrderService orderService;
 

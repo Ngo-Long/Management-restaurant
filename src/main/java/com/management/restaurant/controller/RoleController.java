@@ -23,14 +23,14 @@ import com.management.restaurant.util.error.InfoInvalidException;
 
 
 /**
- * REST controller for managing restaurants.
- * This class accesses the {@link com.management.restaurant.domain.Role} entity
+ * REST controller for managing roles.
+ * This class accesses the {@link Role} entity
  */
 @RestController
 @RequestMapping("/api/v1")
 public class RoleController {
 
-    private final Logger log = LoggerFactory.getLogger(RestaurantController.class);
+    private final Logger log = LoggerFactory.getLogger(RoleController.class);
 
     private final RoleService roleService;
 
@@ -41,14 +41,14 @@ public class RoleController {
     /**
      * {@code POST  /roles} : Create a new role.
      *
-     * @param role the restaurant to create.
+     * @param role the role to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new role, or with status {@code 400 (Bad Request)} if the role name already exists.
      * @throws InfoInvalidException if the role name already exists or if the input information is invalid.
      */
     @PostMapping("/roles")
     @ApiMessage("Create a role")
     public ResponseEntity<Role> createRole(@Valid @RequestBody Role role) throws InfoInvalidException {
-        log.debug("REST request to save Restaurant : {}", role);
+        log.debug("REST request to save Role : {}", role);
 
         if (this.roleService.existByName(role.getName())) {
             throw new InfoInvalidException("Tên đã tồn tại, vui lòng sử dụng tên khác!");
@@ -92,7 +92,7 @@ public class RoleController {
     @DeleteMapping("/roles/{id}")
     @ApiMessage("Delete a role")
     public ResponseEntity<Void> deleteRoleById(@PathVariable("id") long id) throws InfoInvalidException {
-        log.debug("REST request to delete Restaurant: {}", id);
+        log.debug("REST request to delete Role: {}", id);
 
         if (this.roleService.fetchRoleById(id) == null) {
             throw new InfoInvalidException("Chức vụ không tồn tại!");
@@ -111,7 +111,7 @@ public class RoleController {
     @GetMapping("/roles/{id}")
     @ApiMessage("Fetch role by id")
     public ResponseEntity<Role> getRoleById(@PathVariable("id") long id) throws InfoInvalidException {
-        log.debug("REST request to get Restaurant : {}", id);
+        log.debug("REST request to get Role : {}", id);
 
         Role dataRole = this.roleService.fetchRoleById(id);
         if (dataRole == null) {

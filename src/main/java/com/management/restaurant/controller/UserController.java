@@ -28,7 +28,7 @@ import com.management.restaurant.util.annotation.ApiMessage;
 
 /**
  * REST controller for managing users.
- * This class accesses the {@link com.management.restaurant.domain.User} entity
+ * This class accesses the {@link User} entity
  */
 @RestController
 @RequestMapping("/api/v1")
