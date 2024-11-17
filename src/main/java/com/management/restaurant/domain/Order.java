@@ -25,7 +25,7 @@ public class Order extends AbstractAuditingEntity<Long> implements Serializable 
     private Long id;
 	
 	private String note;
-	private double totalPrice;
+	private Double totalPrice;
 	
     @Enumerated(EnumType.STRING)
     private OrderOptionEnum option;

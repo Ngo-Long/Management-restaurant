@@ -28,13 +28,13 @@ public class Product extends AbstractAuditingEntity<Long> implements Serializabl
 	
 	@NotNull
 	@DecimalMin(value = "0", inclusive = false, message = "Giá phải lớn hơn 0")
-	private double price;
+	private Double price;
 	
 	@NotNull
 	@Min(value = 1, message = "Số lượng cần lớn hơn hoặc bằng 1")
-	private long quantity;
+	private Integer quantity;
 	
-	private long sold;
+	private Double sold;
 	private String image;
 	
 	private String shortDesc;

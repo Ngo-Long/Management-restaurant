@@ -11,7 +11,7 @@ import com.management.restaurant.domain.enumeration.GenderEnum;
 @Getter
 public class ResCreateUserDTO {
 
-	private long id;
+	private Long id;
 	private String fullName;
 	private String email;
 	private String phone;
@@ -25,7 +25,7 @@ public class ResCreateUserDTO {
 	@Setter
 	@Getter
 	public static class RestaurantUser {
-		private long id;
+		private Long id;
 		private String name;
 	}
 }

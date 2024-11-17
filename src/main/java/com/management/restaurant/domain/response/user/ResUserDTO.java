@@ -14,7 +14,7 @@ import com.management.restaurant.domain.enumeration.GenderEnum;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResUserDTO {
-	private long id;
+	private Long id;
 	private String email;
 	private String fullName;
 	private String phone;
@@ -33,7 +33,7 @@ public class ResUserDTO {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class RoleUser {
-		private long id;
+		private Long id;
 		private String name;
 	}
 
@@ -42,7 +42,7 @@ public class ResUserDTO {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class RestaurantUser {
-		private long id;
+		private Long id;
 		private String name;
 	}
 }

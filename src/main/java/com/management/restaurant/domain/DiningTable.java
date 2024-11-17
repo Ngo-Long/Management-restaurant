@@ -30,7 +30,7 @@ public class DiningTable extends AbstractAuditingEntity<Long> implements Seriali
     @NotBlank(message = "Vị trí không được để trống!")
     private String location;
     
-    private int seats;
+    private Integer seats;
 
     @Column(columnDefinition = "MEDIUMTEXT")
     private String description;

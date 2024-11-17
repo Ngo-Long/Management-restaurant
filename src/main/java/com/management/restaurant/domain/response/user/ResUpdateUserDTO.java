@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ResUpdateUserDTO {
-	private long id;
+	private Long id;
 	private String email;
 	private String fullName;
 	private String phone;
@@ -24,7 +24,7 @@ public class ResUpdateUserDTO {
 	@Setter
 	@Getter
 	public static class RestaurantUser {
-		private long id;
+		private Long id;
 		private String name;
 	}
 }
