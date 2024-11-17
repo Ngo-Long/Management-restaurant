@@ -3,18 +3,8 @@ package com.management.restaurant.domain;
 import lombok.Getter;
 import lombok.Setter;
 
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-
 import java.io.Serializable;
+import jakarta.persistence.*;
 
 import com.management.restaurant.domain.enumeration.PaymentMethodEnum;
 import com.management.restaurant.domain.enumeration.PaymentStatusEnum;
@@ -48,5 +38,4 @@ public class Invoice extends AbstractAuditingEntity<Long> implements Serializabl
     @OneToOne
     @JoinColumn(name = "order_id")
     private Order order;  
-	
 }
