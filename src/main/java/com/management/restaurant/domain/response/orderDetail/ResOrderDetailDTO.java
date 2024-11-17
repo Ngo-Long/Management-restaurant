@@ -14,8 +14,8 @@ import com.management.restaurant.domain.enumeration.OrderDetailStatusEnum;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResOrderDetailDTO {
-    private long id;
-    private long quantity;
+    private Long id;
+    private Long quantity;
     private Double price;
     private OrderDetailStatusEnum status;
 
@@ -32,7 +32,7 @@ public class ResOrderDetailDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class OrderOD {
-        private long id;
+        private Long id;
         private String tableName;
     }
 
@@ -41,7 +41,7 @@ public class ResOrderDetailDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ProductOD {
-        private long id;
+        private Long id;
         private String name;
     }
 }

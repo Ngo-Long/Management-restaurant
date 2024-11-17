@@ -19,8 +19,8 @@ public class OrderDetail extends AbstractAuditingEntity<Long> implements Seriali
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private long quantity;
-    private double price;
+    private Long quantity;
+    private Double price;
     
     @Enumerated(EnumType.STRING)
     private OrderDetailStatusEnum status;

@@ -10,8 +10,8 @@ import com.management.restaurant.domain.enumeration.OrderDetailStatusEnum;
 @Getter
 @Setter
 public class ResUpdateOrderDetailDTO {
-    private long id;
-    private long quantity;
+    private Long id;
+    private Long quantity;
     private Double price;
     private OrderDetailStatusEnum status;
 
@@ -24,14 +24,14 @@ public class ResUpdateOrderDetailDTO {
     @Setter
     @Getter
     public static class OrderOD {
-        private long id;
+        private Long id;
         private String tableName;
     }
 
     @Setter
     @Getter
     public static class ProductOD {
-        private long id;
+        private Long id;
         private String name;
     }
 }
