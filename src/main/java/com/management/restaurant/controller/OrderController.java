@@ -9,11 +9,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.turkraft.springfilter.boot.Filter;
+
 import com.management.restaurant.service.OrderService;
+import com.management.restaurant.service.UserService;
+import com.management.restaurant.service.DiningTableService;
 
 import com.management.restaurant.domain.Order;
+import com.management.restaurant.domain.DiningTable;
+import com.management.restaurant.domain.enumeration.OrderOptionEnum;
+import com.management.restaurant.domain.enumeration.OrderStatusEnum;
 import com.management.restaurant.domain.response.ResultPaginationDTO;
 
+import com.management.restaurant.util.SecurityUtil;
 import com.management.restaurant.util.annotation.ApiMessage;
 import com.management.restaurant.util.error.InfoInvalidException;
 
@@ -32,9 +39,13 @@ public class OrderController {
     private final Logger log = LoggerFactory.getLogger(OrderController.class);
 
     private final OrderService orderService;
+    private final UserService userService;
+    private final DiningTableService diningTableService;
 
-    public OrderController(OrderService orderService) {
+    public OrderController(OrderService orderService,UserService userService,DiningTableService diningTableService) {
         this.orderService = orderService;
+        this.userService = userService;
+        this.diningTableService = diningTableService;
     }
 
     /**
@@ -49,6 +60,18 @@ public class OrderController {
     public ResponseEntity<ResCreateOrderDTO> createOrder(@RequestBody Order order) {
         log.debug("REST request to save order : {}", order);
 
+        DiningTable table = this.diningTableService.fetchDiningTableById(order.getDiningTable().getId());
+        if (table != null) {
+            order.setDiningTable(table);
+            order.setOption(OrderOptionEnum.DINE_IN);
+        } else {
+            order.setOption(OrderOptionEnum.TAKEAWAY);
+        }
+
+        String email = SecurityUtil.getCurrentUserLogin().orElse("");
+
+        order.setUser(this.userService.fetchUserByUsername(email));
+        order.setStatus(OrderStatusEnum.PENDING);
         Order dataOrder = this.orderService.createOrder(order);
 
         return ResponseEntity

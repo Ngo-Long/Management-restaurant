@@ -88,7 +88,7 @@ public class OrderService {
         ResOrderDTO.UserOrder userOrder = new ResOrderDTO.UserOrder();
         if (order.getUser() != null) {
             userOrder.setId(order.getUser().getId());
-            userOrder.setName(order.getUser().getFullName());
+            userOrder.setName(order.getUser().getName());
             res.setUser(userOrder);
         }
 
@@ -125,7 +125,7 @@ public class OrderService {
         ResCreateOrderDTO.UserOrder userOrder = new ResCreateOrderDTO.UserOrder();
         if (order.getUser() != null) {
             userOrder.setId(order.getUser().getId());
-            userOrder.setName(order.getUser().getFullName());
+            userOrder.setName(order.getUser().getName());
             res.setUser(userOrder);
         }
 
@@ -162,7 +162,7 @@ public class OrderService {
         ResUpdateOrderDTO.UserOrder userOrder = new ResUpdateOrderDTO.UserOrder();
         if (order.getUser() != null) {
             userOrder.setId(order.getUser().getId());
-            userOrder.setName(order.getUser().getFullName());
+            userOrder.setName(order.getUser().getName());
             res.setUser(userOrder);
         }
 
