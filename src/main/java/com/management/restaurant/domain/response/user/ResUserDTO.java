@@ -16,12 +16,11 @@ import com.management.restaurant.domain.enumeration.GenderEnum;
 public class ResUserDTO {
 	private Long id;
 	private String email;
-	private String fullName;
-	private String phone;
-	private String avatar;
+	private String name;
+	private Integer age;
 	private String address;
-	private boolean active;
     private GenderEnum gender;
+
     private Instant createdDate;
     private Instant lastModifiedDate;
 

@@ -25,7 +25,7 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
     private Long id;
 
     @NotBlank(message = "Tên người dùng không được để trống")
-    private String fullName;
+    private String name;
 
     @NotBlank(message = "Email không được để trống")
     private String email;
@@ -33,14 +33,12 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
     @NotBlank(message = "Mật khẩu không được để trống")
     private String password;
 
-    private String phone;
+    private Integer age;
     
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
     
-    private String avatar;
-    private String address; 
-    private boolean active = true;
+    private String address;
 
     @Column(columnDefinition = "MEDIUMTEXT")
     private String refreshToken;

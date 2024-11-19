@@ -68,13 +68,11 @@ public class UserService {
             currentUser.setRole(role != null ? role : null);
         }
         
-        currentUser.setFullName(user.getFullName());
-        currentUser.setPhone(user.getPhone());
+        currentUser.setName(user.getName());
+        currentUser.setAge(user.getAge());
         currentUser.setGender(user.getGender());
-        currentUser.setAvatar(user.getAvatar());
         currentUser.setAddress(user.getAddress());
-        currentUser.setActive(user.isActive());
-        
+
         return this.userRepository.save(currentUser);
     }
 
@@ -124,12 +122,10 @@ public class UserService {
         ResUserDTO res = new ResUserDTO();
         res.setId(user.getId());
         res.setEmail(user.getEmail());
-        res.setFullName(user.getFullName());
-        res.setPhone(user.getPhone());
+        res.setName(user.getName());
+        res.setAge(user.getAge());
         res.setGender(user.getGender());
-        res.setAvatar(user.getAvatar());
         res.setAddress(user.getAddress());
-        res.setActive(user.isActive());
         res.setCreatedDate(user.getCreatedDate());
         res.setLastModifiedDate(user.getLastModifiedDate());
 
@@ -164,12 +160,10 @@ public class UserService {
 
         res.setId(user.getId());
         res.setEmail(user.getEmail());
-        res.setFullName(user.getFullName());        
-        res.setPhone(user.getPhone());
+        res.setName(user.getName());
+        res.setAge(user.getAge());
         res.setGender(user.getGender());
-        res.setAvatar(user.getAvatar());
         res.setAddress(user.getAddress());
-        res.setActive(user.isActive());
         res.setCreatedDate(user.getCreatedDate());
 
         if (user.getRestaurant() != null) {
@@ -193,12 +187,10 @@ public class UserService {
 
         res.setId(user.getId());
         res.setEmail(user.getEmail());
-        res.setFullName(user.getFullName());
-        res.setPhone(user.getPhone());
+        res.setName(user.getName());
+        res.setAge(user.getAge());
         res.setGender(user.getGender());
-        res.setAvatar(user.getAvatar());        
         res.setAddress(user.getAddress());
-        res.setActive(user.isActive());
         res.setLastModifiedDate(user.getLastModifiedDate());
 
         if (user.getRestaurant() != null) {

@@ -12,13 +12,11 @@ import com.management.restaurant.domain.enumeration.GenderEnum;
 public class ResCreateUserDTO {
 
 	private Long id;
-	private String fullName;
+	private String name;
 	private String email;
-	private String phone;
+	private Integer age;
     private GenderEnum gender;
-	private String avatar;
 	private String address;
-	private boolean active;
     private Instant createdDate;
 	private RestaurantUser restaurant;
 
