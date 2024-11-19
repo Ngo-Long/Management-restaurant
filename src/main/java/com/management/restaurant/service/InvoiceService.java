@@ -82,7 +82,7 @@ public class InvoiceService {
         ResInvoiceDTO.UserInvoice userInvoice = new ResInvoiceDTO.UserInvoice();
         if (invoice.getUser() != null) {
             userInvoice.setId(invoice.getUser().getId());
-            userInvoice.setName(invoice.getUser().getFullName());
+            userInvoice.setName(invoice.getUser().getName());
             res.setUser(userInvoice);
         }
 
@@ -156,7 +156,7 @@ public class InvoiceService {
         ResUpdateInvoiceDTO.UserInvoice userInvoice = new ResUpdateInvoiceDTO.UserInvoice();
         if (invoice.getUser() != null) {
             userInvoice.setId(invoice.getUser().getId());
-            userInvoice.setName(invoice.getUser().getFullName());
+            userInvoice.setName(invoice.getUser().getName());
             res.setUser(userInvoice);
         }
 

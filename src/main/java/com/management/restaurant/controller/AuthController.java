@@ -58,7 +58,7 @@ public class AuthController {
         ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(
                 currentUserDB.getId(),
                 currentUserDB.getEmail(),
-                currentUserDB.getFullName(),
+                currentUserDB.getName(),
                 currentUserDB.getRole());
         resLoginDto.setUser(userLogin);
 
@@ -146,7 +146,7 @@ public class AuthController {
 
         userLogin.setId(currentUserDB.getId());
         userLogin.setEmail(currentUserDB.getEmail());
-        userLogin.setName(currentUserDB.getFullName());
+        userLogin.setName(currentUserDB.getName());
         userLogin.setRole(currentUserDB.getRole());
         userGetAccount.setUser(userLogin);
 
