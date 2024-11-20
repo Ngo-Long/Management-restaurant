@@ -1,5 +1,7 @@
 package com.management.restaurant.controller;
 
+import com.management.restaurant.domain.response.user.ResRegisterUserDTO;
+import com.management.restaurant.repository.RestaurantRepository;
 import jakarta.validation.Valid;
 import com.management.restaurant.service.UserService;
 
@@ -35,16 +37,19 @@ public class AuthController {
     private long refreshTokenExpiration;
 
     private final UserService userService;
+    private final RestaurantRepository restaurantRepository;
     private final SecurityUtil securityUtil;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     public AuthController(
             UserService userService,
+            RestaurantRepository restaurantRepository,
             SecurityUtil securityUtil,
             PasswordEncoder passwordEncoder,
             AuthenticationManagerBuilder authenticationManagerBuilder) {
         this.userService = userService;
+        this.restaurantRepository = restaurantRepository;
         this.securityUtil = securityUtil;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
@@ -54,7 +59,7 @@ public class AuthController {
         // issue new token/set refresh token as cookies
         ResLoginDTO resLoginDto = new ResLoginDTO();
 
-        // create new userLogin (userLogin is a subclass of the inner class resLoginDto)
+        // create new userLogin
         ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(
                 currentUserDB.getId(),
                 currentUserDB.getEmail(),
@@ -110,10 +115,10 @@ public class AuthController {
     @GetMapping("/auth/refresh")
     @ApiMessage("Fetch user by refresh token")
     public ResponseEntity<ResLoginDTO> getRefreshToken(
-            @CookieValue(name = "refresh_token", defaultValue = "") String refresh_token)
+        @CookieValue(name = "refresh_token", defaultValue = "") String refresh_token)
             throws IdInvalidException {
         if (refresh_token.equals("")) {
-            throw new IdInvalidException("Bạn không có refresh token ở cookie");
+            throw new IdInvalidException("Bạn không có refresh token ở cookie!");
         }
 
         // check valid
@@ -123,7 +128,7 @@ public class AuthController {
         // check user by token + email
         User currentUserDB = this.userService.getUserByRefreshTokenAndEmail(refresh_token, email);
         if (currentUserDB == null) {
-            throw new IdInvalidException("Refresh Token không hợp lệ");
+            throw new IdInvalidException("Refresh Token không hợp lệ!");
         }
 
         return createResponseLogin(email, currentUserDB);
@@ -183,17 +188,25 @@ public class AuthController {
 
     @PostMapping("/auth/register")
     @ApiMessage("Register a new user")
-    public ResponseEntity<ResCreateUserDTO> register(@Valid @RequestBody User dataUser) throws IdInvalidException {
-        boolean isEmailExist = this.userService.isEmailExist(dataUser.getEmail());
+    public ResponseEntity<ResCreateUserDTO> register(@Valid @RequestBody ResRegisterUserDTO userDTO)
+        throws IdInvalidException {
+        boolean isEmailExist = this.userService.isEmailExist(userDTO.getEmail());
         if (isEmailExist) {
-            throw new IdInvalidException("Email " + dataUser.getEmail() + " đã tồn tại, vui lòng sử dụng email khác!");
+            throw new IdInvalidException("Email " + userDTO.getEmail() + " đã tồn tại, " +
+                "vui lòng sử dụng email khác!");
         }
 
-        String hashPassword = this.passwordEncoder.encode(dataUser.getPassword());
-        dataUser.setPassword(hashPassword);
+        boolean isRestaurantExist = this.restaurantRepository.existsByName(userDTO.getRestaurant().getName());
+        if (isRestaurantExist) {
+            throw new IdInvalidException("Tên nhà hàng " + userDTO.getEmail() + " đã tồn tại, " +
+                "vui lòng sử dụng tên khác!");
+        }
 
-        User newUser = this.userService.createUser(dataUser);
-        ResCreateUserDTO res = this.userService.convertToResCreateUserDTO(newUser);
+        String hashPassword = this.passwordEncoder.encode(userDTO.getPassword());
+        userDTO.setPassword(hashPassword);
+
+        User user = this.userService.registerUser(userDTO);
+        ResCreateUserDTO res = this.userService.convertToResCreateUserDTO(user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }

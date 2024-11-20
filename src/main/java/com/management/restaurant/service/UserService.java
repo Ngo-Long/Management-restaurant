@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.management.restaurant.domain.Role;
+import com.management.restaurant.domain.response.order.ResCreateOrderDTO;
+import com.management.restaurant.domain.response.user.ResRegisterUserDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +40,26 @@ public class UserService {
         this.roleService = roleService;
     }
 
+    public User registerUser(ResRegisterUserDTO userDTO) {
+        // create restaurant
+        Restaurant restaurant = new Restaurant();
+        restaurant.setName(userDTO.getRestaurant().getName());
+        this.restaurantService.createRestaurant(restaurant);
+
+        // create user
+        User user = new User();
+        user.setRestaurant(restaurant);
+        user.setName(userDTO.getName());
+        user.setEmail(userDTO.getEmail());
+        user.setPassword(userDTO.getPassword());
+        user.setAge(userDTO.getAge());
+        user.setGender(userDTO.getGender());
+        user.setAddress(userDTO.getAddress());
+        this.userRepository.save(user);
+
+        return user;
+    }
+
     public User createUser(User user) {
         if (user.getRestaurant() != null) {
         	Restaurant restaurant = this.restaurantService.fetchRestaurantById(user.getRestaurant().getId());
@@ -48,10 +70,10 @@ public class UserService {
             Role role = this.roleService.fetchRoleById(user.getRole().getId());
             user.setRole(role != null ? role : null);
         }
-        
+
         return this.userRepository.save(user);
     }
-    
+
     public User updateUser(User user) {
     	User currentUser = this.fetchUserById(user.getId());
         if (currentUser == null) {
@@ -67,7 +89,7 @@ public class UserService {
             Role role = this.roleService.fetchRoleById(user.getRole().getId());
             currentUser.setRole(role != null ? role : null);
         }
-        
+
         currentUser.setName(user.getName());
         currentUser.setAge(user.getAge());
         currentUser.setGender(user.getGender());
@@ -89,11 +111,11 @@ public class UserService {
     public void deleteUser(Long id) {
         this.userRepository.deleteById(id);
     }
-    
+
     public Boolean isEmailExist(String email) {
         return this.userRepository.existsByEmail(email);
     }
-    
+
     public User fetchUserById(long id) {
         Optional<User> userOptional = this.userRepository.findById(id);
         if (userOptional.isPresent()) {
@@ -156,7 +178,7 @@ public class UserService {
      */
     public ResCreateUserDTO convertToResCreateUserDTO(User user) {
         ResCreateUserDTO res = new ResCreateUserDTO();
-        ResCreateUserDTO.RestaurantUser restaurant = new ResCreateUserDTO.RestaurantUser();
+        ResCreateUserDTO.RestaurantUser restaurantDTO = new ResCreateUserDTO.RestaurantUser();
 
         res.setId(user.getId());
         res.setEmail(user.getEmail());
@@ -167,11 +189,12 @@ public class UserService {
         res.setCreatedDate(user.getCreatedDate());
 
         if (user.getRestaurant() != null) {
-            restaurant.setId(user.getRestaurant().getId());
-            restaurant.setName(user.getRestaurant().getName());
-            res.setRestaurant(restaurant);
+            Restaurant restaurant = this.restaurantService.fetchRestaurantById(user.getRestaurant().getId());
+            restaurantDTO.setId(restaurant.getId());
+            restaurantDTO.setName(restaurant.getName());
+            res.setRestaurant(restaurantDTO);
         }
-       
+
         return res;
     }
 
@@ -198,7 +221,7 @@ public class UserService {
             restaurant.setName(user.getRestaurant().getName());
             res.setRestaurant(restaurant);
         }
-       
+
         return res;
     }
 
