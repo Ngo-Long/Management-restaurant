@@ -46,6 +46,4 @@ public class ResOrderDTO {
         private long id;
         private String name;
     }
-
-
 }

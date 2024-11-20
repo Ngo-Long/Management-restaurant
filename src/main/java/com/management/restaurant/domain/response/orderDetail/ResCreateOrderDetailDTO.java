@@ -12,7 +12,7 @@ import com.management.restaurant.domain.enumeration.OrderDetailStatusEnum;
 @Setter
 public class ResCreateOrderDetailDTO {
     private Long id;
-    private Long quantity;
+    private Integer quantity;
     private Double price;
     private OrderDetailStatusEnum status;
 

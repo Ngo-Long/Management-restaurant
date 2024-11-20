@@ -78,7 +78,12 @@ public class OrderDetailService {
         ResOrderDetailDTO.OrderOD order = new ResOrderDetailDTO.OrderOD();
         if (orderDetail.getOrder() != null) {
             order.setId(orderDetail.getOrder().getId());
-            order.setTableName(orderDetail.getOrder().getDiningTable().getName());
+
+            if (orderDetail.getOrder().getDiningTable() != null) {
+                order.setTableName(orderDetail.getOrder().getDiningTable().getName());
+            } else {
+                order.setTableName("Mang về");
+            }
             res.setOrder(order);
         }
 
@@ -148,7 +153,12 @@ public class OrderDetailService {
         ResUpdateOrderDetailDTO.OrderOD order = new ResUpdateOrderDetailDTO.OrderOD();
         if (orderDetail.getOrder() != null) {
             order.setId(orderDetail.getOrder().getId());
-            order.setTableName(orderDetail.getOrder().getDiningTable().getName());
+
+            if (orderDetail.getOrder().getDiningTable() != null) {
+                order.setTableName(orderDetail.getOrder().getDiningTable().getName());
+            } else {
+                order.setTableName("Mang về");
+            }
             res.setOrder(order);
         }
 

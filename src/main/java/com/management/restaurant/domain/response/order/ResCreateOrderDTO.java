@@ -1,6 +1,7 @@
 package com.management.restaurant.domain.response.order;
 
 import java.time.Instant;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -21,7 +22,9 @@ public class ResCreateOrderDTO {
     private Instant createdDate;
 
     private UserOrder user;
+    private InvoiceOrder invoice;
     private DiningTableOrder diningTable;
+    private List<OrderDetailOrder> orderDetails;
 
     @Setter
     @Getter
@@ -32,10 +35,24 @@ public class ResCreateOrderDTO {
 
     @Setter
     @Getter
+    public static class InvoiceOrder {
+        private Long id;
+        private String status;
+    }
+
+    @Setter
+    @Getter
     public static class DiningTableOrder {
         private Long id;
         private String name;
     }
 
-
+    @Getter
+    @Setter
+    public static class OrderDetailOrder {
+        private Long id;
+        private Long productId;
+        private String productName;
+        private Integer quantity;
+    }
 }

@@ -12,16 +12,16 @@ import com.management.restaurant.domain.enumeration.OrderDetailStatusEnum;
 @Getter
 @Setter
 public class OrderDetail extends AbstractAuditingEntity<Long> implements Serializable {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long quantity;
+    private Integer quantity = 1;
     private Double price;
-    
+
     @Enumerated(EnumType.STRING)
     private OrderDetailStatusEnum status;
 

@@ -11,7 +11,7 @@ import com.management.restaurant.domain.enumeration.OrderDetailStatusEnum;
 @Setter
 public class ResUpdateOrderDetailDTO {
     private Long id;
-    private Long quantity;
+    private Integer quantity;
     private Double price;
     private OrderDetailStatusEnum status;
 

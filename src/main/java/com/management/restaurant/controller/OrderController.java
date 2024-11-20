@@ -9,21 +9,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.turkraft.springfilter.boot.Filter;
-
 import com.management.restaurant.service.OrderService;
-import com.management.restaurant.service.UserService;
-import com.management.restaurant.service.DiningTableService;
-
-import com.management.restaurant.domain.Order;
-import com.management.restaurant.domain.DiningTable;
-import com.management.restaurant.domain.enumeration.OrderOptionEnum;
-import com.management.restaurant.domain.enumeration.OrderStatusEnum;
-import com.management.restaurant.domain.response.ResultPaginationDTO;
-
-import com.management.restaurant.util.SecurityUtil;
 import com.management.restaurant.util.annotation.ApiMessage;
 import com.management.restaurant.util.error.InfoInvalidException;
 
+import com.management.restaurant.domain.Order;
+import com.management.restaurant.domain.response.ResultPaginationDTO;
 import com.management.restaurant.domain.response.order.ResOrderDTO;
 import com.management.restaurant.domain.response.order.ResCreateOrderDTO;
 import com.management.restaurant.domain.response.order.ResUpdateOrderDTO;
@@ -39,61 +30,44 @@ public class OrderController {
     private final Logger log = LoggerFactory.getLogger(OrderController.class);
 
     private final OrderService orderService;
-    private final UserService userService;
-    private final DiningTableService diningTableService;
 
-    public OrderController(OrderService orderService,UserService userService,DiningTableService diningTableService) {
+    public OrderController(OrderService orderService) {
         this.orderService = orderService;
-        this.userService = userService;
-        this.diningTableService = diningTableService;
     }
 
     /**
      * {@code POST  /orders} : Create a new order.
      *
-     * @param order the order to create.
+     * @param orderDTO the order to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new orders
      * or with status {@code 400 (Bad Request)}.
      */
     @PostMapping("/orders")
     @ApiMessage("Create a order")
-    public ResponseEntity<ResCreateOrderDTO> createOrder(@RequestBody Order order) {
-        log.debug("REST request to save order : {}", order);
+    public ResponseEntity<ResCreateOrderDTO> createOrder(@RequestBody ResCreateOrderDTO orderDTO) {
+        log.debug("REST request to save order : {}", orderDTO);
 
-        DiningTable table = this.diningTableService.fetchDiningTableById(order.getDiningTable().getId());
-        if (table != null) {
-            order.setDiningTable(table);
-            order.setOption(OrderOptionEnum.DINE_IN);
-        } else {
-            order.setOption(OrderOptionEnum.TAKEAWAY);
-        }
-
-        String email = SecurityUtil.getCurrentUserLogin().orElse("");
-
-        order.setUser(this.userService.fetchUserByUsername(email));
-        order.setStatus(OrderStatusEnum.PENDING);
-        Order dataOrder = this.orderService.createOrder(order);
-
+        Order dataOrder = this.orderService.createOrder(orderDTO);
         return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(this.orderService.convertToResCreateOrderDTO(dataOrder));
+            .status(HttpStatus.CREATED)
+            .body(this.orderService.convertToResCreateOrderDTO(dataOrder));
     }
 
     /**
      * {@code PUT  /orders/:id} : Update an existing order.
      *
-     * @param order the order to update.
+     * @param orderDTO the order to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the updated order in the body
      * or with status {@code 400 (Bad Request)}.
      * @throws InfoInvalidException if the order does not exist
      */
     @PutMapping("/orders")
     @ApiMessage("Update a order")
-    public ResponseEntity<ResUpdateOrderDTO> updateOrder(@RequestBody Order order)
-    throws InfoInvalidException {
-        log.debug("REST request to update order : {}", order);
+    public ResponseEntity<ResUpdateOrderDTO> updateOrder(@RequestBody ResUpdateOrderDTO orderDTO)
+        throws InfoInvalidException {
+        log.debug("REST request to update order : {}", orderDTO);
 
-        Order dataOrder = this.orderService.updateOrder(order);
+        Order dataOrder = this.orderService.updateOrder(orderDTO);
         if (dataOrder == null) {
             throw new InfoInvalidException("Đơn hàng không tồn tại");
         }
