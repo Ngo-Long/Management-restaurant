@@ -1,5 +1,9 @@
 package com.management.restaurant.controller;
 
+import com.management.restaurant.domain.Restaurant;
+import com.management.restaurant.util.SecurityUtil;
+import com.turkraft.springfilter.builder.FilterBuilder;
+import com.turkraft.springfilter.converter.FilterSpecificationConverter;
 import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
@@ -26,6 +30,8 @@ import com.management.restaurant.domain.response.user.ResUpdateUserDTO;
 import com.management.restaurant.service.UserService;
 import com.management.restaurant.util.annotation.ApiMessage;
 
+import java.util.List;
+
 /**
  * REST controller for managing users.
  * This class accesses the {@link User} entity
@@ -35,13 +41,22 @@ import com.management.restaurant.util.annotation.ApiMessage;
 public class UserController {
 
 	private final Logger log = LoggerFactory.getLogger(UserController.class);
-	
+
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final FilterBuilder filterBuilder;
+    private final FilterSpecificationConverter filterSpecificationConverter;
 
-    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
+    public UserController(
+        UserService userService,
+        PasswordEncoder passwordEncoder,
+        FilterBuilder filterBuilder,
+        FilterSpecificationConverter filterSpecificationConverter
+    ) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.filterBuilder = filterBuilder;
+        this.filterSpecificationConverter = filterSpecificationConverter;
     }
 
     /**
@@ -62,12 +77,12 @@ public class UserController {
     @ApiMessage("Create a user")
     public ResponseEntity<ResCreateUserDTO> createUser(@Valid @RequestBody User user) throws InfoInvalidException {
     	log.debug("REST request to save User : {}", user);
-    	
+
 		boolean isEmailExist = this.userService.isEmailExist(user.getEmail());
 		if (isEmailExist) {
 			throw new InfoInvalidException("Email đã tồn tại, vui lòng sử dụng email khác!");
 		}
-		
+
 		String hashPassword = this.passwordEncoder.encode(user.getPassword());
         user.setPassword(hashPassword);
 
@@ -76,7 +91,7 @@ public class UserController {
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
-    
+
     /**
      * {@code PUT /users} : Updates an existing User.
      *
@@ -85,16 +100,16 @@ public class UserController {
      *         the updated user.
      * @throws InfoInvalidException {@code 400 (Bad Request)} if the email is not
      *                                   already in use.
-     */    
+     */
     @PutMapping("/users")
     @ApiMessage("Update a user")
-    public ResponseEntity<ResUpdateUserDTO> updateUser(@Valid @RequestBody User user) throws InfoInvalidException {
+    public ResponseEntity<ResUpdateUserDTO> updateUser(@RequestBody User user) throws InfoInvalidException {
     	log.debug("REST request to update User : {}", user);
-    	
+
         if (this.userService.fetchUserById(user.getId()) == null) {
         	throw new InfoInvalidException("Người dùng không tồn tại!");
         }
-    	
+
     	User dataUser = this.userService.updateUser(user);
         return ResponseEntity.ok(this.userService.convertToResUpdateUserDTO(dataUser));
     }
@@ -109,15 +124,15 @@ public class UserController {
     @ApiMessage("Delete a user")
     public ResponseEntity<Void> deleteUserById(@PathVariable("id") Long id) throws InfoInvalidException {
     	log.debug("REST request to delete User: {}", id);
-    	
+
         if (this.userService.fetchUserById(id) == null) {
             throw new InfoInvalidException("Người dùng không tồn tại!");
         }
-        
+
         this.userService.deleteUser(id);
         return ResponseEntity.ok(null);
     }
-    
+
     /**
      * {@code GET /users/:id} : get the "id" user.
      *
@@ -129,7 +144,7 @@ public class UserController {
     @ApiMessage("Fetch user by id")
     public ResponseEntity<ResUserDTO> getUserById(@PathVariable("id") long id) throws InfoInvalidException {
     	log.debug("REST request to get User : {}", id);
-    	
+
         User fetchUser = this.userService.fetchUserById(id);
         if (fetchUser == null) {
             throw new InfoInvalidException("Người dùng không tồn tại!");
@@ -139,7 +154,7 @@ public class UserController {
     }
 
     /**
-     * {@code GET /users} : get all users with filter the details - calling this
+     * {@code GET /users} : get all user the details - calling this
      * are only allowed for the administrators.
      *
      * @param pageable the pagination information.
@@ -148,9 +163,39 @@ public class UserController {
      *         all users.
      */
     @GetMapping("/users")
-    @ApiMessage("Fetch filter users")
-    public ResponseEntity<ResultPaginationDTO> fetchUsers(Pageable pageable, @Filter Specification<User> spec) {
-    	log.debug("REST request to get user filter");
+    @ApiMessage("Fetch all user")
+    public ResponseEntity<ResultPaginationDTO> fetchAllUser(Pageable pageable, @Filter Specification<User> spec) {
+        log.debug("REST request to get all user");
         return ResponseEntity.ok(this.userService.fetchUsersDTO(spec, pageable));
     }
+
+    /**
+     * {@code GET /users/by-restaurant} : get users by restaurant the details - calling this
+     * are only allowed for the administrators.
+     *
+     * @param pageable the pagination information.
+     * @param spec     the filtering criteria applied to the query
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         all users.
+     */
+    @GetMapping("/users/by-restaurant")
+    @ApiMessage("Fetch users by restaurant")
+    public ResponseEntity<ResultPaginationDTO> fetchUserByRestaurant(
+        Pageable pageable, @Filter Specification<User> spec) {
+    	log.debug("REST request to get users by restaurant");
+
+        // get info user
+        String email = SecurityUtil.getCurrentUserLogin().orElse("");
+        User currentUser = this.userService.fetchUserByUsername(email);
+
+        // get info restaurant
+        Restaurant restaurant = currentUser.getRestaurant();
+
+        Specification<User> restaurantSpec = (root, query, criteriaBuilder) ->
+            criteriaBuilder.equal(root.get("restaurant").get("id"), restaurant.getId());
+
+        Specification<User> finalSpec = restaurantSpec.and(spec);
+        return ResponseEntity.ok(this.userService.fetchUsersDTO(finalSpec, pageable));
+    }
+
 }

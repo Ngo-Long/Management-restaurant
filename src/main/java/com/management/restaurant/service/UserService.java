@@ -125,6 +125,15 @@ public class UserService {
         return null;
     }
 
+    public List<User> fetchUserByRestaurant(Restaurant restaurant) {
+        List<User> userList = this.userRepository.findByRestaurant(restaurant);
+        if (userList.isEmpty()) {
+            return null;
+        }
+
+        return userList;
+    }
+
     public User fetchUserByUsername(String username) {
         return this.userRepository.findByEmail(username);
     }
