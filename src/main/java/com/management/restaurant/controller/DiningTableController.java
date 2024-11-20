@@ -40,22 +40,23 @@ public class DiningTableController {
     /**
      * {@code POST  /dining-tables} : Create a new dining table.
      *
-     * @param diningTable the dining table to create.
+     * @param table the dining table to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new dining tables,
      *         or with status {@code 400 (Bad Request)} if the dining tables name already exists.
      * @throws InfoInvalidException if the dining table name already exists or if the input information is invalid.
      */
     @PostMapping("/dining-tables")
     @ApiMessage("Create a dining table")
-    public ResponseEntity<DiningTable> createDiningTable(@Valid @RequestBody DiningTable diningTable)
+    public ResponseEntity<DiningTable> createDiningTable(@Valid @RequestBody DiningTable table)
             throws InfoInvalidException {
-        log.debug("REST request to save dining table : {}", diningTable);
+        log.debug("REST request to save dining table : {}", table);
 
-        if (this.diningTableService.isNameExist(diningTable.getName())) {
+        boolean isExist = this.diningTableService.isNameAndRestaurantExist(table.getName(),table.getRestaurant());
+        if (isExist) {
             throw new InfoInvalidException("Tên đã tồn tại, vui lòng sử dụng tên khác!");
         }
 
-        DiningTable newDiningTable = this.diningTableService.createDiningTable(diningTable);
+        DiningTable newDiningTable = this.diningTableService.createDiningTable(table);
         return ResponseEntity.status(HttpStatus.CREATED).body(newDiningTable);
     }
 
@@ -78,8 +79,8 @@ public class DiningTableController {
             throw new InfoInvalidException("Bàn ăn không tồn tại!");
         }
 
-        boolean isNameExist = this.diningTableService.isNameExist(table.getName());
-        if (isNameExist && !Objects.equals(currentTable.getName(), table.getName())) {
+        boolean isExist = this.diningTableService.isNameAndRestaurantExist(table.getName(),table.getRestaurant());
+        if (isExist && !Objects.equals(currentTable.getName(), table.getName())) {
             throw new InfoInvalidException("Tên đã tồn tại, vui lòng sử dụng tên khác!");
         }
 

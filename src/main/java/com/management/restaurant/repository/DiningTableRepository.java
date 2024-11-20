@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.management.restaurant.domain.DiningTable;
 
+import com.management.restaurant.domain.Restaurant;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -15,7 +16,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 public interface DiningTableRepository extends JpaRepository<DiningTable, Long>,
         JpaSpecificationExecutor<DiningTable> {
 
-    Boolean existsByName(String name);
+    Boolean existsByNameAndRestaurant(String name, Restaurant restaurant);
 
     List<DiningTable> findByName(String name);
 
