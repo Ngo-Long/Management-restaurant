@@ -48,16 +48,17 @@ public class UserService {
 
         // create user
         User user = new User();
-        user.setRestaurant(restaurant);
         user.setName(userDTO.getName());
         user.setEmail(userDTO.getEmail());
         user.setPassword(userDTO.getPassword());
         user.setAge(userDTO.getAge());
         user.setGender(userDTO.getGender());
         user.setAddress(userDTO.getAddress());
-        this.userRepository.save(user);
 
-        return user;
+        user.setRestaurant(restaurant);
+        user.setRole(this.roleService.fetchRoleById(2)); // role id 2 = admin
+
+        return this.userRepository.save(user);
     }
 
     public User createUser(User user) {

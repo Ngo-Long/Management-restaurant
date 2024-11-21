@@ -4,7 +4,6 @@ import com.management.restaurant.domain.Restaurant;
 import com.management.restaurant.util.SecurityUtil;
 import com.turkraft.springfilter.builder.FilterBuilder;
 import com.turkraft.springfilter.converter.FilterSpecificationConverter;
-import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,12 +11,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import org.springframework.web.bind.annotation.*;
-
+import jakarta.validation.Valid;
 import com.turkraft.springfilter.boot.Filter;
 import com.management.restaurant.util.error.InfoInvalidException;
 
@@ -31,6 +30,7 @@ import com.management.restaurant.service.UserService;
 import com.management.restaurant.util.annotation.ApiMessage;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing users.
@@ -44,19 +44,10 @@ public class UserController {
 
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
-    private final FilterBuilder filterBuilder;
-    private final FilterSpecificationConverter filterSpecificationConverter;
 
-    public UserController(
-        UserService userService,
-        PasswordEncoder passwordEncoder,
-        FilterBuilder filterBuilder,
-        FilterSpecificationConverter filterSpecificationConverter
-    ) {
+    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
-        this.filterBuilder = filterBuilder;
-        this.filterSpecificationConverter = filterSpecificationConverter;
     }
 
     /**
@@ -154,33 +145,36 @@ public class UserController {
     }
 
     /**
-     * {@code GET /users} : get all user the details - calling this
-     * are only allowed for the administrators.
+     * {@code GET /users} : Retrieve all users with optional filtering and pagination
+     *
+     * This endpoint is accessible to administrators only
      *
      * @param pageable the pagination information.
      * @param spec     the filtering criteria applied to the query
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
-     *         all users.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and a body containing
+     *         the paginated list of users.
      */
     @GetMapping("/users")
     @ApiMessage("Fetch all user")
-    public ResponseEntity<ResultPaginationDTO> fetchAllUser(Pageable pageable, @Filter Specification<User> spec) {
+    public ResponseEntity<ResultPaginationDTO> fetchAllUsers(Pageable pageable, @Filter Specification<User> spec) {
         log.debug("REST request to get all user");
         return ResponseEntity.ok(this.userService.fetchUsersDTO(spec, pageable));
     }
 
     /**
-     * {@code GET /users/by-restaurant} : get users by restaurant the details - calling this
-     * are only allowed for the administrators.
+     * {@code GET /users/by-restaurant} : Retrieve users associated with the current user's restaurant.
+     *
+     *  This endpoint fetches users specific to the restaurant associated with the currently
+     *  authenticated user and applies additional filtering and pagination criteria.
      *
      * @param pageable the pagination information.
      * @param spec     the filtering criteria applied to the query
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
-     *         all users.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and a body containing
+     *  *         the paginated list of users for the restaurant.
      */
     @GetMapping("/users/by-restaurant")
     @ApiMessage("Fetch users by restaurant")
-    public ResponseEntity<ResultPaginationDTO> fetchUserByRestaurant(
+    public ResponseEntity<ResultPaginationDTO> fetchUsersByRestaurant(
         Pageable pageable, @Filter Specification<User> spec) {
     	log.debug("REST request to get users by restaurant");
 
@@ -191,10 +185,11 @@ public class UserController {
         // get info restaurant
         Restaurant restaurant = currentUser.getRestaurant();
 
-        Specification<User> restaurantSpec = (root, query, criteriaBuilder) ->
+        // specification user
+        Specification<User> restaurantInSpec = (root, query, criteriaBuilder) ->
             criteriaBuilder.equal(root.get("restaurant").get("id"), restaurant.getId());
+        Specification<User> finalSpec = restaurantInSpec.and(spec);
 
-        Specification<User> finalSpec = restaurantSpec.and(spec);
         return ResponseEntity.ok(this.userService.fetchUsersDTO(finalSpec, pageable));
     }
 
