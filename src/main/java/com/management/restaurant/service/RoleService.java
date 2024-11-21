@@ -81,7 +81,7 @@ public class RoleService {
 
     }
 
-    public ResultPaginationDTO getRoles(Specification<Role> spec, Pageable pageable) {
+    public ResultPaginationDTO fetchRoles(Specification<Role> spec, Pageable pageable) {
         Page<Role> pageRole = this.roleRepository.findAll(spec, pageable);
         ResultPaginationDTO rs = new ResultPaginationDTO();
         ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta();
