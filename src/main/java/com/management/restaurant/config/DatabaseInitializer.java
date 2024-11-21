@@ -2,6 +2,7 @@ package com.management.restaurant.config;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.boot.CommandLineRunner;
@@ -112,31 +113,54 @@ public class DatabaseInitializer implements CommandLineRunner {
         }
 
         if (countRoles == 0) {
+            // Create Owner role
             List<Permission> allPermissions = this.permissionRepository.findAll();
+            Role ownerRole = new Role();
+            ownerRole.setName("OWNER");
+            ownerRole.setDescription("Owner full permissions");
+            ownerRole.setActive(true);
+            ownerRole.setPermissions(allPermissions);
+            this.roleRepository.save(ownerRole);
+
+            // Create Admin role (exclude RESTAURANTS permissions)
+            List<Permission> adminPermissions = allPermissions.stream()
+                .filter(permission -> !permission.getModule().contains("RESTAURANTS"))
+                .collect(Collectors.toList());
 
             Role adminRole = new Role();
-            adminRole.setName("SUPER_ADMIN");
-            adminRole.setDescription("Admin thì full permissions");
+            adminRole.setName("ADMIN");
+            adminRole.setDescription("Admin full permissions");
             adminRole.setActive(true);
-            adminRole.setPermissions(allPermissions);
-
+            adminRole.setPermissions(adminPermissions);
             this.roleRepository.save(adminRole);
         }
 
         if (countUsers == 0) {
+            // create owner user
+            User ownerUser = new User();
+            ownerUser.setEmail("owner@gmail.com");
+            ownerUser.setPassword(this.passwordEncoder.encode("owner"));
+            ownerUser.setName("I'm owner");
+            ownerUser.setAge(21);
+            ownerUser.setGender(GenderEnum.MALE);
+            ownerUser.setAddress("Hồ Chí Minh");
+
+            Role ownerRole = this.roleRepository.findByName("OWNER");
+            if (ownerRole != null)  ownerUser.setRole(ownerRole);
+
+            this.userRepository.save(ownerUser);
+
+            // create admin user
             User adminUser = new User();
             adminUser.setEmail("admin@gmail.com");
             adminUser.setPassword(this.passwordEncoder.encode("admin"));
-
-            adminUser.setName("I'm super admin");
+            adminUser.setName("I'm admin");
             adminUser.setAge(21);
             adminUser.setGender(GenderEnum.MALE);
             adminUser.setAddress("Hồ Chí Minh");
 
-            Role adminRole = this.roleRepository.findByName("SUPER_ADMIN");
-            if (adminRole != null) {
-                adminUser.setRole(adminRole);
-            }
+            Role adminRole = this.roleRepository.findByName("ADMIN");
+            if (adminRole != null)  adminUser.setRole(adminRole);
 
             this.userRepository.save(adminUser);
         }
