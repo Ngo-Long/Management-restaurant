@@ -55,16 +55,18 @@ public class AuthController {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
     }
 
-    public ResponseEntity<ResLoginDTO> createResponseLogin(String email, User currentUserDB) {
+    public ResponseEntity<ResLoginDTO> createResponseLogin(String email, User currentUser) {
         // issue new token/set refresh token as cookies
         ResLoginDTO resLoginDto = new ResLoginDTO();
 
         // create new userLogin
         ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(
-                currentUserDB.getId(),
-                currentUserDB.getEmail(),
-                currentUserDB.getName(),
-                currentUserDB.getRole());
+            currentUser.getId(),
+            currentUser.getEmail(),
+            currentUser.getName(),
+            currentUser.getRole(),
+            currentUser.getRestaurant()
+        );
         resLoginDto.setUser(userLogin);
 
         // create access token
@@ -137,22 +139,21 @@ public class AuthController {
     @GetMapping("/auth/account")
     @ApiMessage("Fetch a account")
     public ResponseEntity<ResLoginDTO.UserGetAccount> getAccount() throws IdInvalidException {
-        String email = SecurityUtil.getCurrentUserLogin().isPresent()
-                ? SecurityUtil.getCurrentUserLogin().get()
-                : "";
-
-        User currentUserDB = this.userService.fetchUserByUsername(email);
-        if (currentUserDB == null) {
+        // get info user
+        String email = SecurityUtil.getCurrentUserLogin().orElse("");
+        User currentUser = this.userService.fetchUserByUsername(email);
+        if (currentUser == null) {
             throw new IdInvalidException("Không tìm thấy người dùng!");
         }
 
         ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin();
-        ResLoginDTO.UserGetAccount userGetAccount = new ResLoginDTO.UserGetAccount();
+        userLogin.setId(currentUser.getId());
+        userLogin.setEmail(currentUser.getEmail());
+        userLogin.setName(currentUser.getName());
+        userLogin.setRole(currentUser.getRole());
+        userLogin.setRestaurant(currentUser.getRestaurant());
 
-        userLogin.setId(currentUserDB.getId());
-        userLogin.setEmail(currentUserDB.getEmail());
-        userLogin.setName(currentUserDB.getName());
-        userLogin.setRole(currentUserDB.getRole());
+        ResLoginDTO.UserGetAccount userGetAccount = new ResLoginDTO.UserGetAccount();
         userGetAccount.setUser(userLogin);
 
         return ResponseEntity.ok().body(userGetAccount);

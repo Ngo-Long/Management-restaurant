@@ -1,5 +1,6 @@
 package com.management.restaurant.domain.response;
 
+import com.management.restaurant.domain.Restaurant;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Getter
 @Setter
 public class ResLoginDTO {
-	
+
     @JsonProperty("access_token")
     private String accessToken;
     private UserLogin user;
@@ -26,6 +27,7 @@ public class ResLoginDTO {
         private String email;
         private String name;
         private Role role;
+        private Restaurant restaurant;
     }
 
     @Getter
