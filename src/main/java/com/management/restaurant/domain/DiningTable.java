@@ -17,9 +17,9 @@ import com.management.restaurant.domain.enumeration.TableEnum;
 @Setter
 @Getter
 public class DiningTable extends AbstractAuditingEntity<Long> implements Serializable {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,7 +29,7 @@ public class DiningTable extends AbstractAuditingEntity<Long> implements Seriali
 
     @NotBlank(message = "Vị trí không được để trống!")
     private String location;
-    
+
     private Integer seats;
 
     @Column(columnDefinition = "MEDIUMTEXT")
@@ -39,13 +39,12 @@ public class DiningTable extends AbstractAuditingEntity<Long> implements Seriali
     private TableEnum status;
 
     private boolean active = true;
-    
+
     @ManyToOne
     @JoinColumn(name = "restaurant_id")
     private Restaurant restaurant;
-    
+
     @OneToMany(mappedBy = "diningTable", fetch = FetchType.LAZY)
     @JsonIgnore
     List<Order> orders;
-
 }

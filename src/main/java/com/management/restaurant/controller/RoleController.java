@@ -1,32 +1,25 @@
 package com.management.restaurant.controller;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-
-import com.management.restaurant.domain.Restaurant;
-import com.management.restaurant.domain.User;
-import com.management.restaurant.service.UserService;
-import com.management.restaurant.util.SecurityUtil;
-import com.turkraft.springfilter.builder.FilterBuilder;
-import com.turkraft.springfilter.converter.FilterSpecificationConverter;
 import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import org.springframework.web.bind.annotation.*;
-
 import com.turkraft.springfilter.boot.Filter;
+import com.turkraft.springfilter.builder.FilterBuilder;
+import com.turkraft.springfilter.converter.FilterSpecificationConverter;
 
 import com.management.restaurant.domain.Role;
 import com.management.restaurant.domain.response.ResultPaginationDTO;
+import com.management.restaurant.service.UserService;
 import com.management.restaurant.service.RoleService;
-
 import com.management.restaurant.util.annotation.ApiMessage;
 import com.management.restaurant.util.error.InfoInvalidException;
 
@@ -41,20 +34,9 @@ public class RoleController {
     private final Logger log = LoggerFactory.getLogger(RoleController.class);
 
     private final RoleService roleService;
-    private final UserService userService;
-    private final FilterBuilder filterBuilder;
-    private final FilterSpecificationConverter filterSpecificationConverter;
 
-    public RoleController(
-        RoleService roleService,
-        UserService userService,
-        FilterBuilder filterBuilder,
-        FilterSpecificationConverter filterSpecificationConverter
-    ) {
+    public RoleController(RoleService roleService) {
         this.roleService = roleService;
-        this.userService = userService;
-        this.filterBuilder = filterBuilder;
-        this.filterSpecificationConverter = filterSpecificationConverter;
     }
 
     /**
@@ -156,33 +138,5 @@ public class RoleController {
             @Filter Specification<Role> spec, Pageable pageable) {
         log.debug("REST request to get filter role");
         return ResponseEntity.ok().body(this.roleService.fetchRoles(spec, pageable));
-    }
-
-    /**
-     * {@code GET /roles/by-user} : Retrieve roles associated with the current role's user
-     *
-     *  This endpoint fetches roles specific to the user associated with the currently
-     *  authenticated role and applies additional filtering and pagination criteria.
-     *
-     * @param pageable the pagination information.
-     * @param spec     the filtering criteria applied to the query
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and a body containing
-     *  *         the paginated list of roles for the restaurant.
-     */
-    @GetMapping("/roles/by-user")
-    @ApiMessage("Fetch roles by user")
-    public ResponseEntity<ResultPaginationDTO> getRolesByUser(
-        @Filter Specification<Role> spec,  Pageable pageable) {
-        log.debug("REST request to get roles by user");
-
-        // get info user
-        String email = SecurityUtil.getCurrentUserLogin().orElse("");
-        User currentUser = this.userService.fetchUserByUsername(email);
-
-        // create spec user roles
-        Specification<Role> userRolesSpec = (root, query, criteriaBuilder) ->
-            criteriaBuilder.equal(root.join("users").get("id"), currentUser.getId());
-
-        return ResponseEntity.ok(this.roleService.fetchRoles(spec.and(userRolesSpec), pageable));
     }
 }

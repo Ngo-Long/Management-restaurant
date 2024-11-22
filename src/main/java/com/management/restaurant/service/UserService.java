@@ -136,7 +136,12 @@ public class UserService {
     }
 
     public User fetchUserByUsername(String username) {
-        return this.userRepository.findByEmail(username);
+        User user =this.userRepository.findByEmail(username);
+        if (user == null) {
+            return null;
+        }
+
+        return user;
     }
 
     public User getUserByRefreshTokenAndEmail(String token, String email) {

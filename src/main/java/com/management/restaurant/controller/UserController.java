@@ -1,10 +1,5 @@
 package com.management.restaurant.controller;
 
-import com.management.restaurant.domain.Restaurant;
-import com.management.restaurant.util.SecurityUtil;
-import com.turkraft.springfilter.builder.FilterBuilder;
-import com.turkraft.springfilter.converter.FilterSpecificationConverter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,19 +13,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import jakarta.validation.Valid;
 import com.turkraft.springfilter.boot.Filter;
+
+import com.management.restaurant.service.UserService;
+import com.management.restaurant.util.SecurityUtil;
+import com.management.restaurant.util.annotation.ApiMessage;
 import com.management.restaurant.util.error.InfoInvalidException;
 
 import com.management.restaurant.domain.User;
+import com.management.restaurant.domain.Restaurant;
 import com.management.restaurant.domain.response.user.ResUserDTO;
 import com.management.restaurant.domain.response.ResultPaginationDTO;
 import com.management.restaurant.domain.response.user.ResCreateUserDTO;
 import com.management.restaurant.domain.response.user.ResUpdateUserDTO;
-
-import com.management.restaurant.service.UserService;
-import com.management.restaurant.util.annotation.ApiMessage;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * REST controller for managing users.
@@ -185,12 +179,11 @@ public class UserController {
         // get info restaurant
         Restaurant restaurant = currentUser.getRestaurant();
 
-        // specification user
-        Specification<User> restaurantInSpec = (root, query, criteriaBuilder) ->
+        // specification restaurant
+        Specification<User> restaurantSpec = (root, query, criteriaBuilder) ->
             criteriaBuilder.equal(root.get("restaurant").get("id"), restaurant.getId());
-        Specification<User> finalSpec = restaurantInSpec.and(spec);
 
-        return ResponseEntity.ok(this.userService.fetchUsersDTO(finalSpec, pageable));
+        return ResponseEntity.ok(this.userService.fetchUsersDTO(restaurantSpec.and(spec), pageable));
     }
 
 }

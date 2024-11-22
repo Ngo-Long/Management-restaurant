@@ -2,24 +2,28 @@ package com.management.restaurant.controller;
 
 import java.util.Objects;
 
+import com.management.restaurant.domain.Restaurant;
+import com.management.restaurant.domain.User;
+import com.management.restaurant.service.UserService;
+import com.management.restaurant.util.SecurityUtil;
+import com.turkraft.springfilter.builder.FilterBuilder;
+import com.turkraft.springfilter.converter.FilterSpecificationConverter;
 import jakarta.validation.Valid;
-
 import com.turkraft.springfilter.boot.Filter;
-import com.management.restaurant.domain.DiningTable;
-import com.management.restaurant.domain.response.ResultPaginationDTO;
-
-import com.management.restaurant.util.annotation.ApiMessage;
-import com.management.restaurant.util.error.InfoInvalidException;
-import com.management.restaurant.service.DiningTableService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import org.springframework.web.bind.annotation.*;
+import com.management.restaurant.domain.DiningTable;
+import com.management.restaurant.domain.response.ResultPaginationDTO;
+import com.management.restaurant.util.annotation.ApiMessage;
+import com.management.restaurant.util.error.InfoInvalidException;
+import com.management.restaurant.service.DiningTableService;
 
 /**
  * REST controller for managing dining tables.
@@ -32,9 +36,20 @@ public class DiningTableController {
     private final Logger log = LoggerFactory.getLogger(DiningTableController.class);
 
     private final DiningTableService diningTableService;
+    private final UserService userService;
+    private final FilterBuilder filterBuilder;
+    private final FilterSpecificationConverter filterSpecificationConverter;
 
-    public DiningTableController(DiningTableService diningTableService) {
+    public DiningTableController(
+        DiningTableService diningTableService,
+        UserService userService,
+        FilterBuilder filterBuilder,
+        FilterSpecificationConverter filterSpecificationConverter
+    ) {
         this.diningTableService = diningTableService;
+        this.userService = userService;
+        this.filterBuilder = filterBuilder;
+        this.filterSpecificationConverter = filterSpecificationConverter;
     }
 
     /**
@@ -96,7 +111,8 @@ public class DiningTableController {
      */
     @DeleteMapping("/dining-tables/{id}")
     @ApiMessage("Delete a dining table")
-    public ResponseEntity<Void> deleteDiningTableById(@PathVariable("id") Long id) throws InfoInvalidException {
+    public ResponseEntity<Void> deleteDiningTableById(@PathVariable("id") Long id)
+        throws InfoInvalidException {
         log.debug("REST request to delete dining table: {}", id);
 
         DiningTable currentTable = this.diningTableService.fetchDiningTableById(id);
@@ -117,7 +133,8 @@ public class DiningTableController {
      */
     @GetMapping("/dining-tables/{id}")
     @ApiMessage("Get dining table by id")
-    public ResponseEntity<DiningTable> fetchDiningTableById(@PathVariable("id") long id) throws InfoInvalidException {
+    public ResponseEntity<DiningTable> fetchDiningTableById(@PathVariable("id") long id)
+        throws InfoInvalidException {
         log.debug("REST request to get dining table : {}", id);
 
         DiningTable dataTable = this.diningTableService.fetchDiningTableById(id);
@@ -137,8 +154,51 @@ public class DiningTableController {
      */
     @GetMapping("/dining-tables")
     @ApiMessage("Fetch filter dining tables")
-    public ResponseEntity<ResultPaginationDTO> fetchDiningTables(Pageable pageable, @Filter Specification<DiningTable> spec) {
+    public ResponseEntity<ResultPaginationDTO> fetchDiningTables
+        (Pageable pageable, @Filter Specification<DiningTable> spec) {
         log.debug("REST request to get dining table filter");
         return ResponseEntity.ok(this.diningTableService.fetchDiningTables(spec, pageable));
+    }
+
+    /**
+     * {@code GET /dining-tables/by-restaurant} : Retrieve users associated with the current
+     * dining table's restaurant.
+     *
+     *  This endpoint fetches dining table specific to the restaurant associated with the
+     *  currently authenticated table and applies additional filtering and pagination criteria.
+     *
+     * @param pageable the pagination information.
+     * @param spec     the filtering criteria applied to the query
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and a body containing
+     *  *         the paginated list of dining tables for the restaurant.
+     */
+    @GetMapping("/dining-tables/by-restaurant")
+    @ApiMessage("Fetch filter dining tables")
+    public ResponseEntity<ResultPaginationDTO> fetchDiningTablesByRestaurant(
+        Pageable pageable, @Filter Specification<DiningTable> spec
+    ) throws InfoInvalidException{
+        log.debug("REST request to get dining tables by restaurant");
+
+        // get user current
+        String email = SecurityUtil.getCurrentUserLogin().orElse("");
+        User currentUser = this.userService.fetchUserByUsername(email);
+        if (currentUser == null) {
+            throw new InfoInvalidException("Không tìm thấy người dùng!");
+        }
+
+        // get restaurant
+        Restaurant restaurant = currentUser.getRestaurant();
+        if (restaurant == null) {
+            throw new InfoInvalidException("Người dùng không thuộc nhà hàng nào!");
+        }
+
+        // Create a specification to filter by restaurant id
+        Specification<DiningTable> restaurantSpec = (root, query, criteriaBuilder) ->
+            criteriaBuilder.equal(root.get("restaurant").get("id"), restaurant.getId());
+
+        // Combine specifications if needed
+        Specification<DiningTable> finalSpec = spec.and(restaurantSpec);
+
+        return ResponseEntity.ok(this.diningTableService.fetchDiningTables(finalSpec, pageable));
     }
 }
