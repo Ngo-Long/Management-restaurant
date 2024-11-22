@@ -21,19 +21,19 @@ import com.management.restaurant.repository.RestaurantRepository;
  */
 @Service
 public class RestaurantService {
-	
+
 	private final RestaurantRepository restaurantRepository;
 	private final UserRepository userRepository;
-	
+
 	public RestaurantService(RestaurantRepository restaurantRepository,UserRepository userRepository) {
 		this.restaurantRepository = restaurantRepository;
 		this.userRepository = userRepository;
 	}
-	
+
     public Restaurant createRestaurant(Restaurant restaurant) {
         return this.restaurantRepository.save(restaurant);
     }
-    
+
     public Restaurant updateRestaurant(Restaurant restaurant) {
     	Restaurant currentRestaurant = this.fetchRestaurantById(restaurant.getId());
         if (currentRestaurant == null) {
@@ -65,10 +65,6 @@ public class RestaurantService {
     public Boolean isNameExist(String name) {
         return this.restaurantRepository.existsByName(name);
     }
-    
-    public List<Restaurant> fetchRestaurantByName(String name) {
-        return this.restaurantRepository.findByName(name);
-    }
 
     public Restaurant fetchRestaurantById(Long id) {
         Optional<Restaurant> restaurantOptional = this.restaurantRepository.findById(id);
@@ -91,5 +87,5 @@ public class RestaurantService {
 
         return rs;
     }
-   	
+
 }

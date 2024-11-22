@@ -1,6 +1,12 @@
 package com.management.restaurant.controller;
 
+import java.util.List;
 import java.util.Objects;
+
+import com.management.restaurant.domain.Role;
+import com.management.restaurant.domain.User;
+import com.management.restaurant.service.UserService;
+import com.management.restaurant.util.SecurityUtil;
 import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
@@ -27,13 +33,15 @@ import com.management.restaurant.util.error.InfoInvalidException;
 @RestController
 @RequestMapping("/api/v1")
 public class RestaurantController {
-		
-	private final Logger log = LoggerFactory.getLogger(RestaurantController.class);
-	
-	private final RestaurantService restaurantService;
 
-    public RestaurantController(RestaurantService restaurantService) {
+	private final Logger log = LoggerFactory.getLogger(RestaurantController.class);
+
+	private final RestaurantService restaurantService;
+    private final UserService userService;
+
+    public RestaurantController(RestaurantService restaurantService, UserService userService) {
         this.restaurantService = restaurantService;
+        this.userService = userService;
     }
 
     /**
@@ -81,7 +89,7 @@ public class RestaurantController {
         if (isNameExist && !Objects.equals(currentRestaurant.getName(), restaurant.getName())) {
             throw new InfoInvalidException("Tên đã tồn tại, vui lòng sử dụng tên khác!");
         }
-    	
+
         Restaurant dataRestaurant = this.restaurantService.updateRestaurant(restaurant);
         return ResponseEntity.ok().body(dataRestaurant);
     }
@@ -96,7 +104,7 @@ public class RestaurantController {
     @ApiMessage("Delete a restaurant")
     public ResponseEntity<Void> deleteRestaurantById(@PathVariable("id") Long id) throws InfoInvalidException {
     	log.debug("REST request to delete Restaurant: {}", id);
-    	
+
         Restaurant currentRestaurant = this.restaurantService.fetchRestaurantById(id);
         if (currentRestaurant == null) {
             throw new InfoInvalidException("Nhà hàng không tồn tại!");
@@ -117,7 +125,7 @@ public class RestaurantController {
     @ApiMessage("Get restaurant by id")
     public ResponseEntity<Restaurant> fetchRestaurantById(@PathVariable("id") long id) throws InfoInvalidException {
     	log.debug("REST request to get Restaurant : {}", id);
-    	
+
         Restaurant dataRestaurant = this.restaurantService.fetchRestaurantById(id);
         if (dataRestaurant == null) {
             throw new InfoInvalidException("Nhà hàng không tồn tại!");
@@ -135,7 +143,7 @@ public class RestaurantController {
      */
     @GetMapping("/restaurants")
     @ApiMessage("Fetch filter restaurants")
-    public ResponseEntity<ResultPaginationDTO> fetchRestaurants(Pageable pageable, @Filter Specification<Restaurant> spec) {
+    public ResponseEntity<ResultPaginationDTO> fetchAllRestaurants(Pageable pageable, @Filter Specification<Restaurant> spec) {
     	log.debug("REST request to get filter restaurant");
         return ResponseEntity.ok(this.restaurantService.fetchRestaurants(spec, pageable));
     }
