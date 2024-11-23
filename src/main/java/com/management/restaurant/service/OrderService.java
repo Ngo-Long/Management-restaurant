@@ -75,7 +75,7 @@ public class OrderService {
             orderDetail.setOrder(order);
             orderDetail.setProduct(product);
             orderDetail.setQuantity(detail.getQuantity());
-            orderDetail.setPrice(product.getPrice());
+            orderDetail.setPrice(product.getSellingPrice());
             orderDetail.setStatus(OrderDetailStatusEnum.CONFIRMED);
             this.orderDetailRepository.save(orderDetail);
         }
@@ -118,7 +118,7 @@ public class OrderService {
             orderDetail.setOrder(currentOrder);
             orderDetail.setProduct(product);
             orderDetail.setQuantity(detail.getQuantity());
-            orderDetail.setPrice(product.getPrice());
+            orderDetail.setPrice(product.getSellingPrice());
             orderDetail.setStatus(OrderDetailStatusEnum.CONFIRMED);
             this.orderDetailRepository.save(orderDetail);
         }

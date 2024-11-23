@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.management.restaurant.domain.Product;
 
+import com.management.restaurant.domain.Restaurant;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -14,7 +15,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product>{
 
-    Boolean existsByName(String name);
+    Boolean existsByNameAndRestaurant(String name, Restaurant restaurant);
 
-    List<Product> findByName(String name);
+    List<Product> findByNameAndRestaurant(String name, Restaurant restaurant);
 }

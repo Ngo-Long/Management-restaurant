@@ -3,6 +3,7 @@ package com.management.restaurant.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.management.restaurant.domain.Restaurant;
 import org.springframework.stereotype.Service;
 
 import org.springframework.data.domain.Page;
@@ -36,13 +37,17 @@ public class ProductService {
         }
 
         currentProduct.setName(product.getName());
-        currentProduct.setPrice(product.getPrice());
+        currentProduct.setSellingPrice(product.getSellingPrice());
+        currentProduct.setCostPrice(product.getCostPrice());
+        currentProduct.setCategory(product.getCategory());
+        currentProduct.setUnit(product.getUnit());
         currentProduct.setQuantity(product.getQuantity());
         currentProduct.setSold(product.getSold());
         currentProduct.setImage(product.getImage());
         currentProduct.setShortDesc(product.getShortDesc());
         currentProduct.setDetailDesc(product.getDetailDesc());
         currentProduct.setActive(product.isActive());
+        currentProduct.setRestaurant(product.getRestaurant());
 
         return this.productRepository.save(currentProduct);
     }
@@ -51,12 +56,12 @@ public class ProductService {
         this.productRepository.deleteById(id);
     }
 
-    public Boolean isNameExist(String name) {
-        return this.productRepository.existsByName(name);
+    public Boolean isExistByNameAndRestaurant(String name, Restaurant restaurant) {
+        return this.productRepository.existsByNameAndRestaurant(name, restaurant);
     }
 
-    public List<Product> fetchProductByName(String name) {
-        return this.productRepository.findByName(name);
+    public List<Product> fetchProductByNameAndRestaurant(String name, Restaurant restaurant) {
+        return this.productRepository.findByNameAndRestaurant(name, restaurant);
     }
 
     public Product fetchProductById(Long id) {
