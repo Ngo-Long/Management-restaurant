@@ -73,14 +73,6 @@ public class DiningTableService {
         return rs;
     }
 
-    public List<DiningTable> fetchDiningTableByName(String name) {
-        return this.diningTableRepository.findByName(name);
-    }
-
-    public List<DiningTable> fetchDiningTableByLocation(String location) {
-        return this.diningTableRepository.findByLocation(location);
-    }
-
     public Boolean isNameAndRestaurantExist(String name, Restaurant restaurant) {
         return this.diningTableRepository.existsByNameAndRestaurant(name, restaurant);
     }

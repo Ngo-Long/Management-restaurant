@@ -129,4 +129,9 @@ public class OrderDetailController {
         log.debug("REST request to get order filter");
         return ResponseEntity.ok(this.orderDetailService.fetchOrderDetailsDTO(spec, pageable));
     }
+
+    public ResponseEntity<ResultPaginationDTO> getOrderDetailByOrder(Pageable pageable,@Filter Specification<OrderDetail> spec) {
+        log.debug("REST request to get order filter");
+        return ResponseEntity.ok(this.orderDetailService.fetchOrderDetailsDTO(spec, pageable));
+    }
 }

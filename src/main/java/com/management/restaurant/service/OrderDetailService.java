@@ -203,4 +203,11 @@ public class OrderDetailService {
         return rs;
     }
 
+    public List<OrderDetail> getOrderDetailsByOrder(Long orderId) {
+        return this.orderDetailRepository.findByOrderId(orderId);
+    }
+
+    public List<OrderDetail> getOrderDetailsByRestaurant(Long restaurantId) {
+        return this.orderDetailRepository.findByRestaurant(restaurantId);
+    }
 }

@@ -8,6 +8,7 @@ import com.management.restaurant.domain.*;
 import com.management.restaurant.domain.enumeration.OrderDetailStatusEnum;
 import com.management.restaurant.domain.enumeration.OrderOptionEnum;
 import com.management.restaurant.domain.enumeration.OrderStatusEnum;
+import com.management.restaurant.domain.enumeration.TableEnum;
 import com.management.restaurant.repository.*;
 import com.management.restaurant.util.SecurityUtil;
 import org.springframework.data.domain.Page;
@@ -48,23 +49,34 @@ public class OrderService {
     }
 
     public Order createOrder(ResCreateOrderDTO orderDTO) {
-        // create order
+        // create new order
         Order order = new Order();
-        if (orderDTO.getDiningTable() != null) {
-            DiningTable diningTable = this.diningTableService.fetchDiningTableById(orderDTO.getDiningTable().getId());
+
+        // set table order and option order
+        DiningTable diningTable = this.diningTableService.fetchDiningTableById(orderDTO.getDiningTable().getId());
+        if (diningTable != null) {
             order.setDiningTable(diningTable);
             order.setOption(OrderOptionEnum.DINE_IN);
         } else {
             order.setOption(OrderOptionEnum.TAKEAWAY);
         }
 
+        // set status table
+        if (orderDTO.getStatus() == OrderStatusEnum.PENDING) {
+            diningTable.setStatus(TableEnum.AVAILABLE);
+            this.diningTableService.updateDiningTable(diningTable);
+        } {
+            diningTable.setStatus(TableEnum.AVAILABLE);
+            this.diningTableService.updateDiningTable(diningTable);
+        }
+
+        // set user order
         String email = SecurityUtil.getCurrentUserLogin().orElse("");
         User user = this.userService.fetchUserByUsername(email);
 
         order.setUser(user);
         order.setTotalPrice(0.0);
         order.setNote(orderDTO.getNote());
-        order.setStatus(OrderStatusEnum.COMPLETED);
         this.orderRepository.save(order);
 
         // add product to order

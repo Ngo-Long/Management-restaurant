@@ -1,5 +1,11 @@
 package com.management.restaurant.controller;
 
+import com.management.restaurant.domain.DiningTable;
+import com.turkraft.springfilter.builder.FilterBuilder;
+import com.turkraft.springfilter.converter.FilterSpecificationConverter;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -9,15 +15,24 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.turkraft.springfilter.boot.Filter;
+import com.management.restaurant.service.UserService;
 import com.management.restaurant.service.OrderService;
+
+import com.management.restaurant.util.SecurityUtil;
 import com.management.restaurant.util.annotation.ApiMessage;
 import com.management.restaurant.util.error.InfoInvalidException;
 
+import com.management.restaurant.domain.User;
 import com.management.restaurant.domain.Order;
+import com.management.restaurant.domain.Restaurant;
+
 import com.management.restaurant.domain.response.ResultPaginationDTO;
 import com.management.restaurant.domain.response.order.ResOrderDTO;
 import com.management.restaurant.domain.response.order.ResCreateOrderDTO;
 import com.management.restaurant.domain.response.order.ResUpdateOrderDTO;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing orders.
@@ -29,10 +44,21 @@ public class OrderController {
 
     private final Logger log = LoggerFactory.getLogger(OrderController.class);
 
+    private final UserService userService;
     private final OrderService orderService;
+    private final FilterBuilder filterBuilder;
+    private final FilterSpecificationConverter filterSpecificationConverter;
 
-    public OrderController(OrderService orderService) {
+    public OrderController(
+            OrderService orderService,
+            UserService userService,
+            FilterBuilder filterBuilder,
+            FilterSpecificationConverter filterSpecificationConverter
+    ) {
+        this.userService = userService;
         this.orderService = orderService;
+        this.filterBuilder = filterBuilder;
+        this.filterSpecificationConverter = filterSpecificationConverter;
     }
 
     /**
@@ -124,5 +150,54 @@ public class OrderController {
     public ResponseEntity<ResultPaginationDTO> getOrders(Pageable pageable,@Filter Specification<Order> spec) {
         log.debug("REST request to get order filter");
         return ResponseEntity.ok(this.orderService.fetchOrdersDTO(spec, pageable));
+    }
+
+    /**
+     * {@code GET /orders/by-restaurant} : Retrieve users associated with the current
+     *  order's restaurant.
+     *
+     *  This endpoint fetches dining table specific to the restaurant associated with the
+     *  currently authenticated order and applies additional filtering and pagination criteria.
+     *
+     * @param pageable the pagination information.
+     * @param spec     the filtering criteria applied to the query
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and a body containing
+     *  *         the paginated list of orders for the restaurant.
+     */
+    @GetMapping("/orders/by-restaurant")
+    @ApiMessage("Fetch filter orders by restaurant")
+    public ResponseEntity<ResultPaginationDTO> fetchOrdersByRestaurant(
+        Pageable pageable, @Filter Specification<Order> spec
+    ) throws InfoInvalidException{
+        log.debug("REST request to get orders by restaurant");
+
+        List<Long> arrTableIds = null;
+        String email = SecurityUtil.getCurrentUserLogin().orElse("");
+
+        // get user current
+        User currentUser = this.userService.fetchUserByUsername(email);
+        if (currentUser == null) {
+            throw new InfoInvalidException("Không tìm thấy người dùng!");
+        }
+
+        // get restaurant
+        Restaurant restaurant = currentUser.getRestaurant();
+        if (restaurant == null) {
+            throw new InfoInvalidException("Người dùng không thuộc nhà hàng nào!");
+        }
+
+        // get list table
+        List<DiningTable> diningTables = restaurant.getDining_tables();
+        if (diningTables != null && !diningTables.isEmpty()) {
+            arrTableIds = diningTables.stream().map(DiningTable::getId)
+                .collect(Collectors.toList());
+        }
+
+        // Create a specification to filter by restaurant by dining table
+        Specification<Order> tableInSpec = filterSpecificationConverter.convert(
+            filterBuilder.field("diningTable.id").in(filterBuilder.input(arrTableIds)).get()
+        );
+
+        return ResponseEntity.ok(this.orderService.fetchOrdersDTO(tableInSpec.and(spec), pageable));
     }
 }
