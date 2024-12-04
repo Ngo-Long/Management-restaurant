@@ -1,8 +1,10 @@
 package com.management.restaurant.controller;
 
+import com.management.restaurant.domain.Order;
 import com.management.restaurant.domain.response.orderDetail.ResCreateOrderDetailDTO;
 import com.management.restaurant.domain.response.orderDetail.ResOrderDetailDTO;
 import com.management.restaurant.domain.response.orderDetail.ResUpdateOrderDetailDTO;
+import com.management.restaurant.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,8 @@ import com.management.restaurant.domain.response.ResultPaginationDTO;
 import com.management.restaurant.util.annotation.ApiMessage;
 import com.management.restaurant.util.error.InfoInvalidException;
 
+import java.util.List;
+
 /**
  * REST controller for managing order details.
  * This class accesses the {@link OrderDetail} entity
@@ -30,9 +34,11 @@ public class OrderDetailController {
 
     private final Logger log = LoggerFactory.getLogger(OrderDetailController.class);
 
+    private final OrderService orderService;
     private final OrderDetailService orderDetailService;
 
-    public OrderDetailController(OrderDetailService orderDetailService) {
+    public OrderDetailController(OrderDetailService orderDetailService, OrderService orderService) {
+        this.orderService = orderService;
         this.orderDetailService = orderDetailService;
     }
 
@@ -97,8 +103,8 @@ public class OrderDetailController {
      * {@code GET  /order-details/:id} : get the "id" order detail.
      *
      * @param id the id of the order details to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the orders,
-     * or with status {@code 400 (Bad Request)}.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     * the order details, or with status {@code 400 (Bad Request)}.
      */
     @GetMapping("/order-details/{id}")
     @ApiMessage("Get a order detail by id")
@@ -116,6 +122,30 @@ public class OrderDetailController {
     }
 
     /**
+     * {@code GET  /order-details/by-order/:id} : get the "id" order.
+     *
+     * @param id the id of the order to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     * the order details, or with status {@code 400 (Bad Request)}.
+     */
+    @GetMapping("/order-details/by-order/{id}")
+    @ApiMessage("Get a order detail by order id")
+    public ResponseEntity<ResultPaginationDTO> getOrderDetailsByOrderId(
+        @PathVariable Long id, Pageable pageable) throws InfoInvalidException {
+        log.debug("REST request to get order detail by order id : {}", id);
+
+        Order dataOrder = this.orderService.fetchOrderById(id);
+        if (dataOrder == null) {
+            throw new InfoInvalidException("Đơn hàng không tồn tại!");
+        }
+
+        Specification<OrderDetail> spec = (root, query, criteriaBuilder) ->
+            criteriaBuilder.equal(root.get("order").get("id"), id);
+
+        return ResponseEntity.ok(this.orderDetailService.fetchOrderDetailsDTO(spec, pageable));
+    }
+
+    /**
      * {@code GET  /order-details} : Fetch filter order details.
      *
      * @param pageable the pagination information.
@@ -125,12 +155,7 @@ public class OrderDetailController {
      */
     @GetMapping("/order-details")
     @ApiMessage("Get filter order details")
-    public ResponseEntity<ResultPaginationDTO> getOrderDetails(Pageable pageable,@Filter Specification<OrderDetail> spec) {
-        log.debug("REST request to get order filter");
-        return ResponseEntity.ok(this.orderDetailService.fetchOrderDetailsDTO(spec, pageable));
-    }
-
-    public ResponseEntity<ResultPaginationDTO> getOrderDetailByOrder(Pageable pageable,@Filter Specification<OrderDetail> spec) {
+    public ResponseEntity<ResultPaginationDTO> getOrderDetails(Pageable pageable, @Filter Specification<OrderDetail> spec) {
         log.debug("REST request to get order filter");
         return ResponseEntity.ok(this.orderDetailService.fetchOrderDetailsDTO(spec, pageable));
     }

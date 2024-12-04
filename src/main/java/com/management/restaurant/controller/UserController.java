@@ -114,6 +114,14 @@ public class UserController {
             throw new InfoInvalidException("Người dùng không tồn tại!");
         }
 
+        if (this.userService.isFirstUserOfRestaurant(id)) {
+            throw new InfoInvalidException("Người dùng này không thể xóa!");
+        }
+
+        if (id == 1) { // owner
+            throw new InfoInvalidException("Người dùng này không thể xóa!");
+        }
+
         this.userService.deleteUser(id);
         return ResponseEntity.ok(null);
     }

@@ -13,12 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.turkraft.springfilter.boot.Filter;
-import com.turkraft.springfilter.builder.FilterBuilder;
-import com.turkraft.springfilter.converter.FilterSpecificationConverter;
-
 import com.management.restaurant.domain.Role;
 import com.management.restaurant.domain.response.ResultPaginationDTO;
-import com.management.restaurant.service.UserService;
 import com.management.restaurant.service.RoleService;
 import com.management.restaurant.util.annotation.ApiMessage;
 import com.management.restaurant.util.error.InfoInvalidException;
@@ -97,6 +93,10 @@ public class RoleController {
 
         if (this.roleService.fetchRoleById(id) == null) {
             throw new InfoInvalidException("Chức vụ không tồn tại!");
+        }
+
+        if (id == 1 || id == 2) {
+            throw new InfoInvalidException("Chức vụ không thể xóa!");
         }
 
         this.roleService.deleteRoleById(id);

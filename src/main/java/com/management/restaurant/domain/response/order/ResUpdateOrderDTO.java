@@ -1,10 +1,10 @@
 package com.management.restaurant.domain.response.order;
 
-import java.time.Instant;
-import java.util.List;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
+import java.time.Instant;
 
 import com.management.restaurant.domain.enumeration.OrderOptionEnum;
 import com.management.restaurant.domain.enumeration.OrderStatusEnum;
@@ -41,10 +41,10 @@ public class ResUpdateOrderDTO {
 
     @Getter
     @Setter
-    public static class OrderDetailOrder {
+    public static class OrderDetailOrder implements BaseOrderDetail {
         private Long id;
         private Long productId;
-        private String productName;
         private Integer quantity;
+        private Double price;
     }
 }

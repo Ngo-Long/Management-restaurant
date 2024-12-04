@@ -1,29 +1,30 @@
 package com.management.restaurant.controller;
 
 import java.util.Objects;
-
-import com.management.restaurant.domain.Restaurant;
-import com.management.restaurant.domain.User;
-import com.management.restaurant.service.UserService;
-import com.management.restaurant.util.SecurityUtil;
-import com.turkraft.springfilter.builder.FilterBuilder;
-import com.turkraft.springfilter.converter.FilterSpecificationConverter;
 import jakarta.validation.Valid;
-import com.turkraft.springfilter.boot.Filter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.turkraft.springfilter.boot.Filter;
 import org.springframework.web.bind.annotation.*;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
+import com.management.restaurant.domain.User;
+import com.management.restaurant.domain.Restaurant;
 import com.management.restaurant.domain.DiningTable;
 import com.management.restaurant.domain.response.ResultPaginationDTO;
+
+import com.management.restaurant.service.UserService;
+import com.management.restaurant.service.DiningTableService;
+
+import com.management.restaurant.util.SecurityUtil;
 import com.management.restaurant.util.annotation.ApiMessage;
 import com.management.restaurant.util.error.InfoInvalidException;
-import com.management.restaurant.service.DiningTableService;
 
 /**
  * REST controller for managing dining tables.
@@ -35,21 +36,15 @@ public class DiningTableController {
 
     private final Logger log = LoggerFactory.getLogger(DiningTableController.class);
 
-    private final DiningTableService diningTableService;
     private final UserService userService;
-    private final FilterBuilder filterBuilder;
-    private final FilterSpecificationConverter filterSpecificationConverter;
+    private final DiningTableService diningTableService;
 
     public DiningTableController(
         DiningTableService diningTableService,
-        UserService userService,
-        FilterBuilder filterBuilder,
-        FilterSpecificationConverter filterSpecificationConverter
+        UserService userService
     ) {
         this.diningTableService = diningTableService;
         this.userService = userService;
-        this.filterBuilder = filterBuilder;
-        this.filterSpecificationConverter = filterSpecificationConverter;
     }
 
     /**

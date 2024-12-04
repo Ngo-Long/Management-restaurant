@@ -64,12 +64,12 @@ public class UserService {
     public User createUser(User user) {
         if (user.getRestaurant() != null) {
         	Restaurant restaurant = this.restaurantService.fetchRestaurantById(user.getRestaurant().getId());
-            user.setRestaurant(restaurant != null ? restaurant : null);
+            user.setRestaurant(restaurant);
         }
 
         if (user.getRole() != null) {
             Role role = this.roleService.fetchRoleById(user.getRole().getId());
-            user.setRole(role != null ? role : null);
+            user.setRole(role);
         }
 
         return this.userRepository.save(user);
@@ -83,12 +83,12 @@ public class UserService {
 
         if (user.getRestaurant() != null) {
             Restaurant restaurant = this.restaurantService.fetchRestaurantById(user.getRestaurant().getId());
-            currentUser.setRestaurant(restaurant != null ? restaurant : null);
+            currentUser.setRestaurant(restaurant);
         }
 
         if (user.getRole() != null) {
             Role role = this.roleService.fetchRoleById(user.getRole().getId());
-            currentUser.setRole(role != null ? role : null);
+            currentUser.setRole(role);
         }
 
         currentUser.setName(user.getName());
@@ -117,6 +117,10 @@ public class UserService {
         return this.userRepository.existsByEmail(email);
     }
 
+    public Boolean isFirstUserOfRestaurant(Long userId) {
+        return this.userRepository.isFirstUserOfRestaurant(userId);
+    }
+
     public User fetchUserById(long id) {
         Optional<User> userOptional = this.userRepository.findById(id);
         if (userOptional.isPresent()) {
@@ -136,12 +140,7 @@ public class UserService {
     }
 
     public User fetchUserByUsername(String username) {
-        User user =this.userRepository.findByEmail(username);
-        if (user == null) {
-            return null;
-        }
-
-        return user;
+        return this.userRepository.findByEmail(username);
     }
 
     public User getUserByRefreshTokenAndEmail(String token, String email) {

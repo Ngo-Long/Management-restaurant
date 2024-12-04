@@ -1,22 +1,18 @@
 package com.management.restaurant.controller;
 
-import com.management.restaurant.domain.DiningTable;
-import com.turkraft.springfilter.builder.FilterBuilder;
-import com.turkraft.springfilter.converter.FilterSpecificationConverter;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.turkraft.springfilter.boot.Filter;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import com.turkraft.springfilter.boot.Filter;
 import com.management.restaurant.service.UserService;
 import com.management.restaurant.service.OrderService;
+import com.management.restaurant.service.DiningTableService;
 
 import com.management.restaurant.util.SecurityUtil;
 import com.management.restaurant.util.annotation.ApiMessage;
@@ -25,14 +21,12 @@ import com.management.restaurant.util.error.InfoInvalidException;
 import com.management.restaurant.domain.User;
 import com.management.restaurant.domain.Order;
 import com.management.restaurant.domain.Restaurant;
+import com.management.restaurant.domain.DiningTable;
 
 import com.management.restaurant.domain.response.ResultPaginationDTO;
 import com.management.restaurant.domain.response.order.ResOrderDTO;
 import com.management.restaurant.domain.response.order.ResCreateOrderDTO;
 import com.management.restaurant.domain.response.order.ResUpdateOrderDTO;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * REST controller for managing orders.
@@ -46,19 +40,16 @@ public class OrderController {
 
     private final UserService userService;
     private final OrderService orderService;
-    private final FilterBuilder filterBuilder;
-    private final FilterSpecificationConverter filterSpecificationConverter;
+    private final DiningTableService diningTableService;
 
     public OrderController(
             OrderService orderService,
             UserService userService,
-            FilterBuilder filterBuilder,
-            FilterSpecificationConverter filterSpecificationConverter
+            DiningTableService diningTableService
     ) {
         this.userService = userService;
         this.orderService = orderService;
-        this.filterBuilder = filterBuilder;
-        this.filterSpecificationConverter = filterSpecificationConverter;
+        this.diningTableService = diningTableService;
     }
 
     /**
@@ -138,6 +129,27 @@ public class OrderController {
     }
 
     /**
+     * {@code GET  /orders/by-dining-table/:id} : get order by the "id" dining table.
+     *
+     * @param id the id of the dining table to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the orders,
+     * or with status {@code 400 (Bad Request)}.
+     */
+    @GetMapping("/orders/by-dining-table/{id}")
+    @ApiMessage("Get a order by dining table id")
+    public ResponseEntity<ResOrderDTO> getOrderByTableId(@PathVariable Long id) throws InfoInvalidException {
+        log.debug("REST request to get order by dining table : {}", id);
+
+        DiningTable diningTable = this.diningTableService.fetchDiningTableById(id);
+        if (diningTable == null) {
+            throw new InfoInvalidException("Bàn ăn không tồn tại!");
+        }
+
+        Order dataOrder = this.orderService.fetchOrderByTable(id);
+        return ResponseEntity.ok(this.orderService.convertToResOrderDTO(dataOrder));
+    }
+
+    /**
      * {@code GET  /orders} : Fetch filter orders.
      *
      * @param pageable the pagination information.
@@ -166,38 +178,23 @@ public class OrderController {
      */
     @GetMapping("/orders/by-restaurant")
     @ApiMessage("Fetch filter orders by restaurant")
-    public ResponseEntity<ResultPaginationDTO> fetchOrdersByRestaurant(
+    public ResponseEntity<ResultPaginationDTO> getOrdersByRestaurant(
         Pageable pageable, @Filter Specification<Order> spec
     ) throws InfoInvalidException{
         log.debug("REST request to get orders by restaurant");
 
-        List<Long> arrTableIds = null;
-        String email = SecurityUtil.getCurrentUserLogin().orElse("");
-
         // get user current
+        String email = SecurityUtil.getCurrentUserLogin().orElse("");
         User currentUser = this.userService.fetchUserByUsername(email);
-        if (currentUser == null) {
-            throw new InfoInvalidException("Không tìm thấy người dùng!");
-        }
 
         // get restaurant
         Restaurant restaurant = currentUser.getRestaurant();
-        if (restaurant == null) {
-            throw new InfoInvalidException("Người dùng không thuộc nhà hàng nào!");
-        }
+        if (restaurant == null) throw new InfoInvalidException("Người dùng không thuộc nhà hàng nào!");
 
-        // get list table
-        List<DiningTable> diningTables = restaurant.getDining_tables();
-        if (diningTables != null && !diningTables.isEmpty()) {
-            arrTableIds = diningTables.stream().map(DiningTable::getId)
-                .collect(Collectors.toList());
-        }
+        // Create a specification to filter all order by dining table by restaurant
+        Specification<Order> restaurantSpec = (root, query, criteriaBuilder) ->
+            criteriaBuilder.equal(root.get("diningTable").get("restaurant").get("id"), restaurant.getId());
 
-        // Create a specification to filter by restaurant by dining table
-        Specification<Order> tableInSpec = filterSpecificationConverter.convert(
-            filterBuilder.field("diningTable.id").in(filterBuilder.input(arrTableIds)).get()
-        );
-
-        return ResponseEntity.ok(this.orderService.fetchOrdersDTO(tableInSpec.and(spec), pageable));
+        return ResponseEntity.ok(this.orderService.fetchOrdersDTO(restaurantSpec.and(spec), pageable));
     }
 }

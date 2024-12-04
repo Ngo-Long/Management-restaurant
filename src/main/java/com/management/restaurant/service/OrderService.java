@@ -1,21 +1,25 @@
 package com.management.restaurant.service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.management.restaurant.domain.*;
-import com.management.restaurant.domain.enumeration.OrderDetailStatusEnum;
-import com.management.restaurant.domain.enumeration.OrderOptionEnum;
-import com.management.restaurant.domain.enumeration.OrderStatusEnum;
-import com.management.restaurant.domain.enumeration.TableEnum;
-import com.management.restaurant.repository.*;
-import com.management.restaurant.util.SecurityUtil;
+import com.management.restaurant.domain.response.order.BaseOrderDetail;
+import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import org.springframework.stereotype.Service;
 import org.springframework.data.jpa.domain.Specification;
+
+import com.management.restaurant.repository.*;
+import com.management.restaurant.util.SecurityUtil;
+
+import com.management.restaurant.domain.*;
+import com.management.restaurant.domain.enumeration.TableEnum;
+import com.management.restaurant.domain.enumeration.OrderOptionEnum;
+import com.management.restaurant.domain.enumeration.OrderStatusEnum;
+import com.management.restaurant.domain.enumeration.OrderDetailStatusEnum;
 
 import com.management.restaurant.domain.response.order.ResOrderDTO;
 import com.management.restaurant.domain.response.ResultPaginationDTO;
@@ -52,23 +56,12 @@ public class OrderService {
         // create new order
         Order order = new Order();
 
-        // set table order and option order
-        DiningTable diningTable = this.diningTableService.fetchDiningTableById(orderDTO.getDiningTable().getId());
-        if (diningTable != null) {
-            order.setDiningTable(diningTable);
-            order.setOption(OrderOptionEnum.DINE_IN);
-        } else {
-            order.setOption(OrderOptionEnum.TAKEAWAY);
-        }
-
-        // set status table
-        if (orderDTO.getStatus() == OrderStatusEnum.PENDING) {
-            diningTable.setStatus(TableEnum.AVAILABLE);
-            this.diningTableService.updateDiningTable(diningTable);
-        } {
-            diningTable.setStatus(TableEnum.AVAILABLE);
-            this.diningTableService.updateDiningTable(diningTable);
-        }
+        // set table order
+        DiningTable diningTable = this.diningTableService.fetchDiningTableById(
+            orderDTO.getDiningTable().getId());
+        setTableStatus(diningTable, orderDTO.getStatus());
+        order.setDiningTable(diningTable);
+        order.setOption(diningTable != null ? OrderOptionEnum.DINE_IN : OrderOptionEnum.TAKEAWAY);
 
         // set user order
         String email = SecurityUtil.getCurrentUserLogin().orElse("");
@@ -77,68 +70,83 @@ public class OrderService {
         order.setUser(user);
         order.setTotalPrice(0.0);
         order.setNote(orderDTO.getNote());
+        order.setStatus(orderDTO.getStatus());
         this.orderRepository.save(order);
 
         // add product to order
-        for (ResCreateOrderDTO.OrderDetailOrder detail : orderDTO.getOrderDetails()) {
-            Product product = this.productService.fetchProductById(detail.getProductId());
+        processOrderDetails(orderDTO.getOrderDetails(), order);
 
-            OrderDetail orderDetail = new OrderDetail();
-            orderDetail.setOrder(order);
-            orderDetail.setProduct(product);
-            orderDetail.setQuantity(detail.getQuantity());
-            orderDetail.setPrice(product.getSellingPrice());
-            orderDetail.setStatus(OrderDetailStatusEnum.CONFIRMED);
-            this.orderDetailRepository.save(orderDetail);
-        }
-
-        // update total price order
-        updateTotalPrice(order.getId());
+        // update total price
+        updateTotalPrice(order);
 
         return order;
-    }
-
-    private void updateTotalPrice(Long orderId) {
-        Double totalPrice = orderDetailRepository.calculateTotalPrice(orderId);
-        Order order = this.fetchOrderById(orderId);
-        order.setTotalPrice(totalPrice);
-        orderRepository.save(order);
     }
 
     public Order updateOrder(ResUpdateOrderDTO orderDTO) {
         // update order
         Order currentOrder = this.fetchOrderById(orderDTO.getId());
-        if (currentOrder == null) {
-            return null;
-        }
+        if (currentOrder == null)  return null;
 
-        if (orderDTO.getDiningTable() != null) {
-            DiningTable diningTable = this.diningTableService.fetchDiningTableById(orderDTO.getDiningTable().getId());
-            currentOrder.setDiningTable(diningTable);
-        }
+        // set table order
+        DiningTable diningTable = this.diningTableService.fetchDiningTableById(
+            orderDTO.getDiningTable().getId());
+        currentOrder.setDiningTable(diningTable);
+        setTableStatus(diningTable, orderDTO.getStatus());
 
         currentOrder.setNote(orderDTO.getNote());
-        currentOrder.setOption(orderDTO.getOption());
         currentOrder.setStatus(orderDTO.getStatus());
         this.orderRepository.save(currentOrder);
 
         // update product to order
-        for (ResUpdateOrderDTO.OrderDetailOrder detail : orderDTO.getOrderDetails()) {
-            Product product = this.productService.fetchProductById(detail.getProductId());
+        processOrderDetails(orderDTO.getOrderDetails(), currentOrder);
 
-            OrderDetail orderDetail = new OrderDetail();
-            orderDetail.setOrder(currentOrder);
+        // update total price order
+        updateTotalPrice(currentOrder);
+
+        return currentOrder;
+    }
+
+    private void setTableStatus(DiningTable diningTable, OrderStatusEnum status) {
+        if (diningTable == null) return;
+
+        if (status == OrderStatusEnum.PENDING) {
+            diningTable.setStatus(TableEnum.OCCUPIED);
+        } else if (status == OrderStatusEnum.COMPLETED) {
+            diningTable.setStatus(TableEnum.AVAILABLE);
+        }
+
+        this.diningTableService.updateDiningTable(diningTable);
+    }
+
+    private void updateTotalPrice(Order order) {
+        double totalPrice = order.getOrderDetails().stream()
+            .mapToDouble(detail -> detail.getQuantity() * detail.getPrice())
+            .sum();
+        order.setTotalPrice(totalPrice);
+        this.orderRepository.save(order);
+    }
+
+    private void processOrderDetails(List<? extends BaseOrderDetail> orderDetails, Order order) {
+        List<OrderDetail> updatedOrderDetails = new ArrayList<>();
+
+        for (BaseOrderDetail detail : orderDetails) {
+            OrderDetail orderDetail = detail.getId() != null
+                ? this.orderDetailRepository.findById(detail.getId()).orElse(null)
+                : new OrderDetail();
+
+            // update detail
+            Product product = this.productService.fetchProductById(detail.getProductId());
+            orderDetail.setOrder(order);
             orderDetail.setProduct(product);
             orderDetail.setQuantity(detail.getQuantity());
             orderDetail.setPrice(product.getSellingPrice());
             orderDetail.setStatus(OrderDetailStatusEnum.CONFIRMED);
-            this.orderDetailRepository.save(orderDetail);
+
+            updatedOrderDetails.add(this.orderDetailRepository.save(orderDetail));
         }
 
-        // update total price order
-        updateTotalPrice(currentOrder.getId());
-
-        return currentOrder;
+        // save detail list
+        order.setOrderDetails(new HashSet<>(updatedOrderDetails));
     }
 
     public void deleteOrderById(Long id) {
@@ -148,6 +156,11 @@ public class OrderService {
     public Order fetchOrderById(Long id) {
         Optional<Order> order = this.orderRepository.findById(id);
         return order.orElse(null);
+    }
+
+    public Order fetchOrderByTable(Long tableId) {
+        Optional<Order> dataOrder = this.orderRepository.findLatestPendingOrderByTableId(tableId);
+        return dataOrder.orElse(null);
     }
 
     /**
