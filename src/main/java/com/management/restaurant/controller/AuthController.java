@@ -1,18 +1,30 @@
 package com.management.restaurant.controller;
 
-import com.management.restaurant.domain.response.user.ResRegisterUserDTO;
-import com.management.restaurant.repository.RestaurantRepository;
-import jakarta.validation.Valid;
-import com.management.restaurant.service.UserService;
+import java.util.List;
+import java.util.ArrayList;
 
+import com.management.restaurant.domain.enumeration.TableEnum;
+import jakarta.validation.Valid;
+
+import com.management.restaurant.util.SecurityUtil;
+import com.management.restaurant.util.annotation.ApiMessage;
+import com.management.restaurant.util.error.IdInvalidException;
+
+import com.management.restaurant.service.UserService;
 import com.management.restaurant.domain.User;
 import com.management.restaurant.domain.request.ReqLoginDTO;
 import com.management.restaurant.domain.response.ResLoginDTO;
 import com.management.restaurant.domain.response.user.ResCreateUserDTO;
 
-import com.management.restaurant.util.SecurityUtil;
-import com.management.restaurant.util.annotation.ApiMessage;
-import com.management.restaurant.util.error.IdInvalidException;
+import com.management.restaurant.repository.ProductRepository;
+import com.management.restaurant.repository.RestaurantRepository;
+import com.management.restaurant.repository.DiningTableRepository;
+
+import com.management.restaurant.domain.Product;
+import com.management.restaurant.domain.Restaurant;
+import com.management.restaurant.domain.DiningTable;
+import com.management.restaurant.domain.enumeration.ProductCategoryEnum;
+import com.management.restaurant.domain.response.user.ResRegisterUserDTO;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,18 +53,25 @@ public class AuthController {
     private final SecurityUtil securityUtil;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final ProductRepository productRepository;
+    private final DiningTableRepository diningTableRepository;
 
     public AuthController(
             UserService userService,
             RestaurantRepository restaurantRepository,
             SecurityUtil securityUtil,
             PasswordEncoder passwordEncoder,
-            AuthenticationManagerBuilder authenticationManagerBuilder) {
+            AuthenticationManagerBuilder authenticationManagerBuilder,
+            ProductRepository productRepository,
+            DiningTableRepository diningTableRepository
+    ) {
         this.userService = userService;
         this.restaurantRepository = restaurantRepository;
         this.securityUtil = securityUtil;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
+        this.productRepository = productRepository;
+        this.diningTableRepository = diningTableRepository;
     }
 
     public ResponseEntity<ResLoginDTO> createResponseLogin(String email, User currentUser) {
@@ -203,12 +222,43 @@ public class AuthController {
                 "vui lòng sử dụng tên khác!");
         }
 
+        // hash password
         String hashPassword = this.passwordEncoder.encode(userDTO.getPassword());
         userDTO.setPassword(hashPassword);
 
+        // create user and restaurant
         User user = this.userService.registerUser(userDTO);
         ResCreateUserDTO res = this.userService.convertToResCreateUserDTO(user);
 
+        // create sample data restaurant
+        Restaurant restaurant = user.getRestaurant();
+        createSampleDataForRestaurant(restaurant);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
+    }
+
+    public void createSampleDataForRestaurant(Restaurant restaurant) {
+        // create dining table list
+        List<DiningTable> tables = new ArrayList<>();
+        for (int i = 1; i <= 5; i++) {
+            DiningTable table = new DiningTable();
+            table.setName("Bàn " + i);
+            table.setLocation("Tầng 1");
+            table.setSeats(4);
+            table.setStatus(TableEnum.AVAILABLE);
+            table.setRestaurant(restaurant);
+            tables.add(table);
+        }
+        diningTableRepository.saveAll(tables);
+
+        // create product list
+        List<Product> products = new ArrayList<>();
+        products.add(new Product("Coca", 15000.0, 6000.0, ProductCategoryEnum.DRINK, "Lon", 100, restaurant));
+        products.add(new Product("Pepsi", 15000.0, 6000.0, ProductCategoryEnum.DRINK, "Lon", 100, restaurant));
+        products.add(new Product("Mì cay hải sản", 55000.0, 30000.0, ProductCategoryEnum.FOOD, "Tô", 50, restaurant));
+        products.add(new Product("Mì cay tôm", 50000.0, 25000.0, ProductCategoryEnum.FOOD, "Tô", 50, restaurant));
+        products.add(new Product("Mì cay sò", 45000.0, 10000.0, ProductCategoryEnum.FOOD, "Tô", 50, restaurant));
+
+        productRepository.saveAll(products);
     }
 }

@@ -46,13 +46,4 @@ public class ResOrderDTO {
         private long id;
         private String name;
     }
-
-    @Getter
-    @Setter
-    public static class OrderDetailOrder implements BaseOrderDetail {
-        private Long id;
-        private Long productId;
-        private Integer quantity;
-        private Double price;
-    }
 }

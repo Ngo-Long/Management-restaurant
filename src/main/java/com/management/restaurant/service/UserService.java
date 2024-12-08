@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.management.restaurant.domain.Role;
-import com.management.restaurant.domain.response.order.ResCreateOrderDTO;
 import com.management.restaurant.domain.response.user.ResRegisterUserDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
@@ -128,15 +127,6 @@ public class UserService {
         }
 
         return null;
-    }
-
-    public List<User> fetchUserByRestaurant(Restaurant restaurant) {
-        List<User> userList = this.userRepository.findByRestaurant(restaurant);
-        if (userList.isEmpty()) {
-            return null;
-        }
-
-        return userList;
     }
 
     public User fetchUserByUsername(String username) {

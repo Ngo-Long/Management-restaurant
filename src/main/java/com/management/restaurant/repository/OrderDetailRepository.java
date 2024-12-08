@@ -12,4 +12,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 @Repository
 public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long>,
         JpaSpecificationExecutor<OrderDetail>{
+
 }

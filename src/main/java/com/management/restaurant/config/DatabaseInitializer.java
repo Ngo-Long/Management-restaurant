@@ -4,18 +4,13 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+import com.management.restaurant.domain.*;
+import com.management.restaurant.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.management.restaurant.domain.Role;
-import com.management.restaurant.domain.User;
-import com.management.restaurant.domain.Permission;
 import com.management.restaurant.domain.enumeration.GenderEnum;
-
-import com.management.restaurant.repository.RoleRepository;
-import com.management.restaurant.repository.UserRepository;
-import com.management.restaurant.repository.PermissionRepository;
 
 /**
  * CommandLineRunner is an interface provided by Spring Boot
@@ -32,15 +27,18 @@ public class DatabaseInitializer implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
     private final PermissionRepository permissionRepository;
 
+
     public DatabaseInitializer(
         RoleRepository roleRepository,
         UserRepository userRepository,
         PasswordEncoder passwordEncoder,
-        PermissionRepository permissionRepository) {
+        PermissionRepository permissionRepository
+    ) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.permissionRepository = permissionRepository;
+
     }
 
     @Override

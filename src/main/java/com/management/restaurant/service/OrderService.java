@@ -1,12 +1,9 @@
 package com.management.restaurant.service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.management.restaurant.domain.response.order.BaseOrderDetail;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +16,6 @@ import com.management.restaurant.domain.*;
 import com.management.restaurant.domain.enumeration.TableEnum;
 import com.management.restaurant.domain.enumeration.OrderOptionEnum;
 import com.management.restaurant.domain.enumeration.OrderStatusEnum;
-import com.management.restaurant.domain.enumeration.OrderDetailStatusEnum;
 
 import com.management.restaurant.domain.response.order.ResOrderDTO;
 import com.management.restaurant.domain.response.ResultPaginationDTO;
@@ -33,22 +29,16 @@ import com.management.restaurant.domain.response.order.ResUpdateOrderDTO;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final OrderDetailRepository orderDetailRepository;
     private final UserService userService;
-    private final ProductService productService;
     private final DiningTableService diningTableService;
 
     public OrderService(
         OrderRepository orderRepository,
-        OrderDetailRepository orderDetailRepository,
         UserService userService,
-        ProductService productService,
         DiningTableService diningTableService
     ) {
         this.orderRepository = orderRepository;
-        this.orderDetailRepository = orderDetailRepository;
         this.userService = userService;
-        this.productService = productService;
         this.diningTableService = diningTableService;
     }
 
@@ -68,18 +58,10 @@ public class OrderService {
         User user = this.userService.fetchUserByUsername(email);
 
         order.setUser(user);
-        order.setTotalPrice(0.0);
         order.setNote(orderDTO.getNote());
         order.setStatus(orderDTO.getStatus());
-        this.orderRepository.save(order);
 
-        // add product to order
-        processOrderDetails(orderDTO.getOrderDetails(), order);
-
-        // update total price
-        updateTotalPrice(order);
-
-        return order;
+        return this.orderRepository.save(order);
     }
 
     public Order updateOrder(ResUpdateOrderDTO orderDTO) {
@@ -95,15 +77,8 @@ public class OrderService {
 
         currentOrder.setNote(orderDTO.getNote());
         currentOrder.setStatus(orderDTO.getStatus());
-        this.orderRepository.save(currentOrder);
 
-        // update product to order
-        processOrderDetails(orderDTO.getOrderDetails(), currentOrder);
-
-        // update total price order
-        updateTotalPrice(currentOrder);
-
-        return currentOrder;
+        return this.orderRepository.save(currentOrder);
     }
 
     private void setTableStatus(DiningTable diningTable, OrderStatusEnum status) {
@@ -118,37 +93,6 @@ public class OrderService {
         this.diningTableService.updateDiningTable(diningTable);
     }
 
-    private void updateTotalPrice(Order order) {
-        double totalPrice = order.getOrderDetails().stream()
-            .mapToDouble(detail -> detail.getQuantity() * detail.getPrice())
-            .sum();
-        order.setTotalPrice(totalPrice);
-        this.orderRepository.save(order);
-    }
-
-    private void processOrderDetails(List<? extends BaseOrderDetail> orderDetails, Order order) {
-        List<OrderDetail> updatedOrderDetails = new ArrayList<>();
-
-        for (BaseOrderDetail detail : orderDetails) {
-            OrderDetail orderDetail = detail.getId() != null
-                ? this.orderDetailRepository.findById(detail.getId()).orElse(null)
-                : new OrderDetail();
-
-            // update detail
-            Product product = this.productService.fetchProductById(detail.getProductId());
-            orderDetail.setOrder(order);
-            orderDetail.setProduct(product);
-            orderDetail.setQuantity(detail.getQuantity());
-            orderDetail.setPrice(product.getSellingPrice());
-            orderDetail.setStatus(OrderDetailStatusEnum.CONFIRMED);
-
-            updatedOrderDetails.add(this.orderDetailRepository.save(orderDetail));
-        }
-
-        // save detail list
-        order.setOrderDetails(new HashSet<>(updatedOrderDetails));
-    }
-
     public void deleteOrderById(Long id) {
         this.orderRepository.deleteById(id);
     }
@@ -158,7 +102,7 @@ public class OrderService {
         return order.orElse(null);
     }
 
-    public Order fetchOrderByTable(Long tableId) {
+    public Order fetchLatestPendingOrderByTable(Long tableId) {
         Optional<Order> dataOrder = this.orderRepository.findLatestPendingOrderByTableId(tableId);
         return dataOrder.orElse(null);
     }

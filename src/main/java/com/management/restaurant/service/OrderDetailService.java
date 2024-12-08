@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.management.restaurant.domain.Order;
+import com.management.restaurant.repository.OrderRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -23,31 +25,60 @@ import com.management.restaurant.domain.response.orderDetail.ResUpdateOrderDetai
 @Service
 public class OrderDetailService {
 
+    private final OrderRepository orderRepository;
     private final OrderDetailRepository orderDetailRepository;
 
-    public OrderDetailService(OrderDetailRepository orderDetailRepository) {
+    public OrderDetailService(
+        OrderRepository orderRepository,
+        OrderDetailRepository orderDetailRepository
+    ) {
+        this.orderRepository = orderRepository;
         this.orderDetailRepository = orderDetailRepository;
     }
 
     public OrderDetail createOrderDetail(OrderDetail orderDetail) {
-        return this.orderDetailRepository.save(orderDetail);
+        OrderDetail data = this.orderDetailRepository.save(orderDetail);
+        updateOrderTotalPrice(data.getOrder());
+
+        return data;
     }
 
     public OrderDetail updateOrderDetail(OrderDetail orderDetail) {
-        OrderDetail orderDetailDB = this.getOrderDetailById(orderDetail.getId());
-        if (orderDetailDB == null) {
+        OrderDetail dataDB = this.getOrderDetailById(orderDetail.getId());
+        if (dataDB == null) {
             return null;
         }
 
-        orderDetailDB.setQuantity(orderDetail.getQuantity());
-        orderDetailDB.setPrice(orderDetail.getPrice());
-        orderDetailDB.setStatus(orderDetail.getStatus());
+        dataDB.setQuantity(orderDetail.getQuantity());
+        dataDB.setPrice(orderDetail.getPrice());
+        dataDB.setStatus(orderDetail.getStatus());
 
-        return this.orderDetailRepository.save(orderDetail);
+        // save
+        OrderDetail data = this.orderDetailRepository.save(dataDB);
+        updateOrderTotalPrice(data.getOrder());
+
+        return data;
     }
 
     public void deleteOrderDetailById(Long id) {
-        this.orderDetailRepository.deleteById(id);
+        OrderDetail data = this.orderDetailRepository.findById(id).orElse(null);
+        if (data != null) {
+            this.orderDetailRepository.deleteById(id);
+            updateOrderTotalPrice(data.getOrder());
+        }
+    }
+
+    private void updateOrderTotalPrice(Order order) {
+        Order dataOrder = this.orderRepository.findById(order.getId()).orElse(null);
+        if (dataOrder == null) return;
+
+        // calc total
+        Double totalPrice = dataOrder.getOrderDetails().stream()
+            .mapToDouble(orderDetail -> orderDetail.getPrice() * orderDetail.getQuantity())
+            .sum();
+
+        dataOrder.setTotalPrice(totalPrice);
+        this.orderRepository.save(dataOrder);
     }
 
     public OrderDetail getOrderDetailById(Long id) {

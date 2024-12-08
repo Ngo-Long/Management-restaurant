@@ -24,7 +24,6 @@ public class ResCreateOrderDTO {
     private UserOrder user;
     private InvoiceOrder invoice;
     private DiningTableOrder diningTable;
-    private List<OrderDetailOrder> orderDetails;
 
     @Setter
     @Getter
@@ -45,14 +44,5 @@ public class ResCreateOrderDTO {
     public static class DiningTableOrder {
         private Long id;
         private String name;
-    }
-
-    @Getter
-    @Setter
-    public static class OrderDetailOrder implements BaseOrderDetail {
-        private Long id;
-        private Long productId;
-        private Integer quantity;
-        private Double price;
     }
 }

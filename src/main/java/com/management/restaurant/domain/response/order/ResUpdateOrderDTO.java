@@ -23,7 +23,6 @@ public class ResUpdateOrderDTO {
 
     private UserOrder user;
     private DiningTableOrder diningTable;
-    private List<OrderDetailOrder> orderDetails;
 
     @Setter
     @Getter
@@ -37,14 +36,5 @@ public class ResUpdateOrderDTO {
     public static class DiningTableOrder {
         private long id;
         private String name;
-    }
-
-    @Getter
-    @Setter
-    public static class OrderDetailOrder implements BaseOrderDetail {
-        private Long id;
-        private Long productId;
-        private Integer quantity;
-        private Double price;
     }
 }

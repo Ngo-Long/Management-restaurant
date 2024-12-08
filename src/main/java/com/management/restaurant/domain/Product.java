@@ -1,11 +1,13 @@
 package com.management.restaurant.domain;
 
-import com.management.restaurant.domain.enumeration.ProductCategoryEnum;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.Serializable;
 import jakarta.persistence.*;
+import com.management.restaurant.domain.enumeration.ProductCategoryEnum;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
@@ -16,11 +18,25 @@ import jakarta.validation.constraints.DecimalMin;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Product extends AbstractAuditingEntity<Long> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@Id
+    public Product(String name, Double sellingPrice, Double costPrice,
+                   ProductCategoryEnum category, String unit,
+                   Integer quantity, Restaurant restaurant) {
+        this.name = name;
+        this.sellingPrice = sellingPrice;
+        this.costPrice = costPrice;
+        this.category = category;
+        this.unit = unit;
+        this.quantity = quantity;
+        this.restaurant = restaurant;
+    }
+
+    @Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 

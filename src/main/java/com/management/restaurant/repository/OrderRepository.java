@@ -23,12 +23,4 @@ public interface OrderRepository extends JpaRepository<Order, Long>,
         nativeQuery = true
     )
     Optional<Order> findLatestPendingOrderByTableId(@Param("diningTableId") Long id);
-
-    @Query(
-        value = "SELECT * FROM orders o " +
-            "WHERE o.dining_table_id IN :diningTableIds AND o.status = 'PENDING' " +
-            "ORDER BY o.created_date DESC, o.id DESC",
-        nativeQuery = true
-    )
-    List<Order> findPendingOrdersByTableIds(@Param("diningTableIds") List<Long> diningTableIds);
 }
