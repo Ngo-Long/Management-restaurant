@@ -129,23 +129,23 @@ public class OrderController {
     }
 
     /**
-     * {@code GET  /orders/by-table/:id} : get latest pending order by the "id" dining table.
+     * {@code GET  /orders/by-table/:id} : get latest unpaid order by the "id" dining table.
      *
      * @param id the id of the dining table to retrieve.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the orders,
      * or with status {@code 400 (Bad Request)}.
      */
     @GetMapping("/orders/by-table/{id}")
-    @ApiMessage("Get a latest pending order by dining table id")
+    @ApiMessage("Get a latest unpaid order by dining table id")
     public ResponseEntity<ResOrderDTO> getOrderByTableId(@PathVariable Long id) throws InfoInvalidException {
-        log.debug("REST request to get a latest pending order by dining table : {}", id);
+        log.debug("REST request to get a latest unpaid order by dining table : {}", id);
 
         DiningTable diningTable = this.diningTableService.fetchDiningTableById(id);
         if (diningTable == null) {
             throw new InfoInvalidException("Bàn ăn không tồn tại!");
         }
 
-        Order dataOrder = this.orderService.fetchLatestPendingOrderByTable(id);
+        Order dataOrder = this.orderService.fetchUnpaidOrderByTableId(id);
         return ResponseEntity.ok(this.orderService.convertToResOrderDTO(dataOrder));
     }
 

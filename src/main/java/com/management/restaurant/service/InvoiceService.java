@@ -4,14 +4,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.management.restaurant.domain.*;
 import com.management.restaurant.domain.Invoice;
-import com.management.restaurant.domain.Invoice;
+import com.management.restaurant.domain.enumeration.OrderStatusEnum;
+import com.management.restaurant.domain.enumeration.TableEnum;
 import com.management.restaurant.domain.response.ResultPaginationDTO;
 import com.management.restaurant.domain.response.invoice.ResCreateInvoiceDTO;
 import com.management.restaurant.domain.response.invoice.ResInvoiceDTO;
 import com.management.restaurant.domain.response.invoice.ResUpdateInvoiceDTO;
+import com.management.restaurant.repository.DiningTableRepository;
 import com.management.restaurant.repository.InvoiceRepository;
 
+import com.management.restaurant.repository.OrderRepository;
+import com.management.restaurant.util.SecurityUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -24,12 +29,42 @@ import org.springframework.stereotype.Service;
 public class InvoiceService {
 
     private final InvoiceRepository invoiceRepository;
+    private final UserService userService;
+    private final OrderRepository orderRepository;
+    private final DiningTableRepository diningTableRepository;
 
-    public InvoiceService(InvoiceRepository invoiceRepository) {
+    public InvoiceService(
+        InvoiceRepository invoiceRepository,
+        OrderRepository orderRepository,
+        UserService userService,
+        DiningTableRepository diningTableRepository
+    ) {
         this.invoiceRepository = invoiceRepository;
+        this.orderRepository = orderRepository;
+        this.userService = userService;
+        this.diningTableRepository = diningTableRepository;
     }
 
     public Invoice createInvoice(Invoice invoice) {
+        // set order
+        Order order = this.orderRepository.findById(invoice.getOrder().getId()).orElse(null);
+        if (order != null) {
+            order.setStatus(OrderStatusEnum.PAID);
+            this.orderRepository.save(order);
+        }
+
+        // set table
+        DiningTable table = this.diningTableRepository.findById(order.getDiningTable().getId()).orElse(null);
+        if (table != null) {
+            table.setStatus(TableEnum.AVAILABLE);
+            this.diningTableRepository.save(table);
+        }
+
+        // set user
+        String email = SecurityUtil.getCurrentUserLogin().orElse("");
+        User user = this.userService.fetchUserByUsername(email);
+
+        invoice.setUser(user);
         return this.invoiceRepository.save(invoice);
     }
 

@@ -71,7 +71,8 @@ public class OrderService {
 
         // set table order
         DiningTable diningTable = this.diningTableService.fetchDiningTableById(
-            orderDTO.getDiningTable().getId());
+            orderDTO.getDiningTable().getId()
+        );
         currentOrder.setDiningTable(diningTable);
         setTableStatus(diningTable, orderDTO.getStatus());
 
@@ -87,6 +88,8 @@ public class OrderService {
         if (status == OrderStatusEnum.PENDING) {
             diningTable.setStatus(TableEnum.OCCUPIED);
         } else if (status == OrderStatusEnum.COMPLETED) {
+            diningTable.setStatus(TableEnum.OCCUPIED);
+        } else if (status == OrderStatusEnum.PAID) {
             diningTable.setStatus(TableEnum.AVAILABLE);
         }
 
@@ -94,6 +97,17 @@ public class OrderService {
     }
 
     public void deleteOrderById(Long id) {
+        Order currentOrder = this.fetchOrderById(id);
+        if (currentOrder == null) return;
+
+        DiningTable diningTable = this.diningTableService.fetchDiningTableById(
+            currentOrder.getDiningTable().getId()
+        );
+        if (diningTable != null) {
+            diningTable.setStatus(TableEnum.AVAILABLE);
+            this.diningTableService.updateDiningTable(diningTable);
+        };
+
         this.orderRepository.deleteById(id);
     }
 
@@ -102,8 +116,8 @@ public class OrderService {
         return order.orElse(null);
     }
 
-    public Order fetchLatestPendingOrderByTable(Long tableId) {
-        Optional<Order> dataOrder = this.orderRepository.findLatestPendingOrderByTableId(tableId);
+    public Order fetchUnpaidOrderByTableId(Long id) {
+        Optional<Order> dataOrder = this.orderRepository.findLatestUnpaidOrderByTableId(id);
         return dataOrder.orElse(null);
     }
 

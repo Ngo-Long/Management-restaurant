@@ -18,9 +18,10 @@ public interface OrderRepository extends JpaRepository<Order, Long>,
         JpaSpecificationExecutor<Order> {
     @Query(
         value = "SELECT * FROM orders o " +
-                "WHERE o.dining_table_id = :diningTableId AND o.status = 'PENDING' " +
+                "WHERE o.dining_table_id = :diningTableId " +
+                "AND o.status NOT IN ('PAID') " +
                 "ORDER BY o.created_date DESC, o.id DESC LIMIT 1",
         nativeQuery = true
     )
-    Optional<Order> findLatestPendingOrderByTableId(@Param("diningTableId") Long id);
+    Optional<Order> findLatestUnpaidOrderByTableId(@Param("diningTableId") Long id);
 }
