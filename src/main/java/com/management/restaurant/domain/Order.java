@@ -31,6 +31,7 @@ public class Order extends AbstractAuditingEntity<Long> implements Serializable 
 	private Double totalPrice = 0.0;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "`option`")
     private OrderOptionEnum option;
 
     @Enumerated(EnumType.STRING)

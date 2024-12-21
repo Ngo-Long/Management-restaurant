@@ -1,9 +1,6 @@
 package com.management.restaurant.controller;
 
-import java.util.List;
-import java.util.ArrayList;
-
-import com.management.restaurant.domain.enumeration.TableEnum;
+import com.management.restaurant.config.DatabaseInitializer;
 import jakarta.validation.Valid;
 
 import com.management.restaurant.util.SecurityUtil;
@@ -20,10 +17,7 @@ import com.management.restaurant.repository.ProductRepository;
 import com.management.restaurant.repository.RestaurantRepository;
 import com.management.restaurant.repository.DiningTableRepository;
 
-import com.management.restaurant.domain.Product;
 import com.management.restaurant.domain.Restaurant;
-import com.management.restaurant.domain.DiningTable;
-import com.management.restaurant.domain.enumeration.ProductCategoryEnum;
 import com.management.restaurant.domain.response.user.ResRegisterUserDTO;
 
 import org.springframework.web.bind.annotation.*;
@@ -47,31 +41,27 @@ public class AuthController {
 
     @Value("${restaurant.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
-
+    private final DatabaseInitializer databaseInitializer;
     private final UserService userService;
     private final RestaurantRepository restaurantRepository;
     private final SecurityUtil securityUtil;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private final ProductRepository productRepository;
-    private final DiningTableRepository diningTableRepository;
 
     public AuthController(
             UserService userService,
+            DatabaseInitializer databaseInitializer,
             RestaurantRepository restaurantRepository,
             SecurityUtil securityUtil,
             PasswordEncoder passwordEncoder,
-            AuthenticationManagerBuilder authenticationManagerBuilder,
-            ProductRepository productRepository,
-            DiningTableRepository diningTableRepository
+            AuthenticationManagerBuilder authenticationManagerBuilder
     ) {
+        this.databaseInitializer = databaseInitializer;
         this.userService = userService;
         this.restaurantRepository = restaurantRepository;
         this.securityUtil = securityUtil;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
-        this.productRepository = productRepository;
-        this.diningTableRepository = diningTableRepository;
     }
 
     public ResponseEntity<ResLoginDTO> createResponseLogin(String email, User currentUser) {
@@ -118,8 +108,9 @@ public class AuthController {
                 loginDto.getUsername(), loginDto.getPassword());
 
         // xác thực người dùng => cần viết hàm loadUserByUsername
-        Authentication authentication = authenticationManagerBuilder.getObject()
-                .authenticate(authenticationToken);
+        Authentication authentication = authenticationManagerBuilder
+            .getObject()
+            .authenticate(authenticationToken);
 
         // set thông tin người dùng đăng nhập vào context
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -136,8 +127,8 @@ public class AuthController {
     @GetMapping("/auth/refresh")
     @ApiMessage("Fetch user by refresh token")
     public ResponseEntity<ResLoginDTO> getRefreshToken(
-        @CookieValue(name = "refresh_token", defaultValue = "") String refresh_token)
-            throws IdInvalidException {
+        @CookieValue(name = "refresh_token", defaultValue = "") String refresh_token
+    ) throws IdInvalidException {
         if (refresh_token.equals("")) {
             throw new IdInvalidException("Bạn không có refresh token ở cookie!");
         }
@@ -232,33 +223,8 @@ public class AuthController {
 
         // create sample data restaurant
         Restaurant restaurant = user.getRestaurant();
-        createSampleDataForRestaurant(restaurant);
+        this.databaseInitializer.createSampleDataForRestaurant(restaurant);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
-    }
-
-    public void createSampleDataForRestaurant(Restaurant restaurant) {
-        // create dining table list
-        List<DiningTable> tables = new ArrayList<>();
-        for (int i = 1; i <= 5; i++) {
-            DiningTable table = new DiningTable();
-            table.setName("Bàn " + i);
-            table.setLocation("Tầng 1");
-            table.setSeats(4);
-            table.setStatus(TableEnum.AVAILABLE);
-            table.setRestaurant(restaurant);
-            tables.add(table);
-        }
-        diningTableRepository.saveAll(tables);
-
-        // create product list
-        List<Product> products = new ArrayList<>();
-        products.add(new Product("Coca", 15000.0, 6000.0, ProductCategoryEnum.DRINK, "Lon", 100, restaurant));
-        products.add(new Product("Pepsi", 15000.0, 6000.0, ProductCategoryEnum.DRINK, "Lon", 100, restaurant));
-        products.add(new Product("Mì cay hải sản", 55000.0, 30000.0, ProductCategoryEnum.FOOD, "Tô", 50, restaurant));
-        products.add(new Product("Mì cay tôm", 50000.0, 25000.0, ProductCategoryEnum.FOOD, "Tô", 50, restaurant));
-        products.add(new Product("Mì cay sò", 45000.0, 10000.0, ProductCategoryEnum.FOOD, "Tô", 50, restaurant));
-
-        productRepository.saveAll(products);
     }
 }

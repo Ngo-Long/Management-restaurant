@@ -10,7 +10,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 /**
- * Cross-Origin Resource Sharing (CORS)\
+ * Cross-Origin Resource Sharing (CORS)
  * CorsConfigurationSource: configure CORS to override the default Spring
  * Security CORS handling
  */
@@ -23,7 +23,8 @@ public class CorsConfig {
 
         // cho phép các URL nào có thể kết nối tới backend
         configuration.setAllowedOrigins(
-                Arrays.asList("http://localhost:3000", "http://localhost:4173", "http://localhost:5173"));
+            Arrays.asList("http://localhost:3000", "http://localhost:4173", "http://localhost:5173")
+        );
 
         // các method nào đc kết nối
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
@@ -37,9 +38,8 @@ public class CorsConfig {
         // thời gian pre-flight request có thể cache (tính theo seconds)
         configuration.setMaxAge(3600L);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
         // cấu hình cors cho tất cả api
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
 
         return source;

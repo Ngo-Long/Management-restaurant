@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import com.management.restaurant.domain.*;
+import com.management.restaurant.domain.enumeration.ProductCategoryEnum;
+import com.management.restaurant.domain.enumeration.TableEnum;
 import com.management.restaurant.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.boot.CommandLineRunner;
@@ -26,19 +28,27 @@ public class DatabaseInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final PermissionRepository permissionRepository;
+    private final ProductRepository productRepository;
+    private final DiningTableRepository diningTableRepository;
+    private final RestaurantRepository restaurantRepository;
 
 
     public DatabaseInitializer(
         RoleRepository roleRepository,
         UserRepository userRepository,
         PasswordEncoder passwordEncoder,
-        PermissionRepository permissionRepository
+        PermissionRepository permissionRepository,
+        ProductRepository productRepository,
+        DiningTableRepository diningTableRepository,
+        RestaurantRepository restaurantRepository
     ) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.permissionRepository = permissionRepository;
-
+        this.productRepository = productRepository;
+        this.diningTableRepository = diningTableRepository;
+        this.restaurantRepository = restaurantRepository;
     }
 
     @Override
@@ -143,8 +153,18 @@ public class DatabaseInitializer implements CommandLineRunner {
             ownerUser.setGender(GenderEnum.MALE);
             ownerUser.setAddress("Hồ Chí Minh");
 
+            // assign role to user
             Role ownerRole = this.roleRepository.findByName("OWNER");
-            if (ownerRole != null)  ownerUser.setRole(ownerRole);
+            if (ownerRole != null) ownerUser.setRole(ownerRole);
+
+            // create restaurant
+            Restaurant restaurant = new Restaurant();
+            restaurant.setName("Nhà hàng Owner");
+            this.restaurantRepository.save(restaurant);
+
+            // create sample data for the restaurant
+            ownerUser.setRestaurant(restaurant);
+            createSampleDataForRestaurant(restaurant);
 
             this.userRepository.save(ownerUser);
         }
@@ -154,6 +174,31 @@ public class DatabaseInitializer implements CommandLineRunner {
         } else {
             System.out.println(">>> END INIT DATABASE");
         }
+    }
+
+    public void createSampleDataForRestaurant(Restaurant restaurant) {
+        // create dining table list
+        List<DiningTable> tables = new ArrayList<>();
+        for (int i = 1; i <= 5; i++) {
+            DiningTable table = new DiningTable();
+            table.setName("Bàn " + i);
+            table.setLocation("Tầng 1");
+            table.setSeats(4);
+            table.setStatus(TableEnum.AVAILABLE);
+            table.setRestaurant(restaurant);
+            tables.add(table);
+        }
+        diningTableRepository.saveAll(tables);
+
+        // create product list
+        List<Product> products = new ArrayList<>();
+        products.add(new Product("Coca", 15000.0, 6000.0, ProductCategoryEnum.DRINK, "Lon", 100, restaurant));
+        products.add(new Product("Pepsi", 15000.0, 6000.0, ProductCategoryEnum.DRINK, "Lon", 100, restaurant));
+        products.add(new Product("Mì cay hải sản", 55000.0, 30000.0, ProductCategoryEnum.FOOD, "Tô", 50, restaurant));
+        products.add(new Product("Mì cay tôm", 50000.0, 25000.0, ProductCategoryEnum.FOOD, "Tô", 50, restaurant));
+        products.add(new Product("Mì cay sò", 45000.0, 10000.0, ProductCategoryEnum.FOOD, "Tô", 50, restaurant));
+
+        productRepository.saveAll(products);
     }
 
 }
